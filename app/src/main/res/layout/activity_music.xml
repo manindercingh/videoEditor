@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_color"
+    tools:context=".MusicActivity">
+
+    <RelativeLayout
+        android:id="@+id/rlHeader"
+        android:layout_width="match_parent"
+        android:layout_height="110dp"
+        android:background="@drawable/neumorphic_bar">
+
+        <ImageView
+            android:id="@+id/icBack"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:paddingHorizontal="15dp"
+            android:paddingTop="15dp"
+            android:paddingBottom="23dp"
+            android:src="@drawable/ic_back_ios"
+            app:tint="@color/white"
+            tools:ignore="ContentDescription" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:orientation="horizontal"
+            android:paddingBottom="@dimen/_7sdp"
+            tools:ignore="RelativeOverlap,UseCompoundDrawables">
+
+            <ImageView
+                android:layout_width="@dimen/_20sdp"
+                android:layout_height="@dimen/_20sdp"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/img_music_logo"
+                tools:ignore="ContentDescription" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="@dimen/_2sdp"
+                android:text="@string/music"
+                android:textColor="@color/white"
+                android:textSize="@dimen/_17sdp" />
+
+        </LinearLayout>
+
+        <soup.neumorphism.NeumorphCardView
+            android:id="@+id/crdAdd"
+            style="@style/ShapeAppearance.Neumorph.Button"
+            android:layout_width="@dimen/_55sdp"
+            android:layout_height="@dimen/_57sdp"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="-10dp"
+            android:layout_toStartOf="@id/crdDelete"
+            android:gravity="center"
+            android:paddingBottom="@dimen/_7sdp"
+            android:textColor="@color/white"
+            app:neumorph_backgroundColor="#333333"
+            app:neumorph_lightSource="rightBottom"
+            app:neumorph_shadowColorDark="@color/black"
+            app:neumorph_shadowColorLight="#454545"
+            app:neumorph_shadowElevation="4dp"
+            app:neumorph_shapeAppearance="@style/Custom.Neumorph.shape"
+            app:neumorph_shapeType="basin">
+
+            <RelativeLayout
+                android:id="@+id/rlAdd"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <ImageView
+                    android:layout_width="@dimen/_20sdp"
+                    android:layout_height="@dimen/_20sdp"
+                    android:layout_centerInParent="true"
+                    android:src="@drawable/add"
+                    tools:ignore="ContentDescription" />
+
+            </RelativeLayout>
+        </soup.neumorphism.NeumorphCardView>
+
+        <soup.neumorphism.NeumorphCardView
+            android:id="@+id/crdDelete"
+            style="@style/ShapeAppearance.Neumorph.Button"
+            android:layout_width="@dimen/_55sdp"
+            android:layout_height="@dimen/_57sdp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="-10dp"
+            android:gravity="center"
+            android:paddingBottom="@dimen/_7sdp"
+            android:textColor="@color/white"
+            app:neumorph_backgroundColor="#333333"
+            app:neumorph_lightSource="rightBottom"
+            app:neumorph_shadowColorDark="@color/black"
+            app:neumorph_shadowColorLight="#454545"
+            app:neumorph_shadowElevation="4dp"
+            app:neumorph_shapeAppearance="@style/Custom.Neumorph.shape"
+            app:neumorph_shapeType="basin">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+
+                android:layout_height="match_parent">
+
+                <ImageView
+                    android:layout_width="@dimen/_20sdp"
+                    android:layout_height="@dimen/_20sdp"
+                    android:layout_centerInParent="true"
+                    android:src="@drawable/ic_trash"
+                    app:tint="@color/text_color"
+                    tools:ignore="ContentDescription" />
+
+            </RelativeLayout>
+        </soup.neumorphism.NeumorphCardView>
+
+
+    </RelativeLayout>
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:id="@+id/ll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/rlHeader"
+        android:layout_marginBottom="@dimen/_70sdp"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+
+            <soup.neumorphism.NeumorphCardView
+                style="@style/Custom.Neumorph.CardView"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_60sdp"
+                android:layout_centerHorizontal="true"
+                android:gravity="center"
+                android:textColor="@color/white"
+                app:neumorph_backgroundColor="@color/background_color"
+                app:neumorph_lightSource="rightBottom"
+                app:neumorph_shadowColorDark="#454545"
+                app:neumorph_shadowColorLight="@color/black"
+                app:neumorph_shadowElevation="4dp"
+                app:neumorph_shapeAppearance="@style/Custom.Neumorph.shape2"
+                app:neumorph_shapeType="pressed" />
+
+            <EditText
+                android:id="@+id/edtSearchView"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_60sdp"
+                android:layout_centerVertical="true"
+                android:layout_gravity="center"
+                android:layout_marginHorizontal="30dp"
+                android:background="@android:color/transparent"
+                android:drawableEnd="@drawable/ic_search"
+                android:hint="@string/search"
+                android:maxLines="1"
+                android:singleLine="true"
+                android:textColor="@color/text_color"
+                android:textColorHint="@color/text_color"
+                android:textSize="14sp"
+                android:inputType="text"
+                android:importantForAutofill="no" />
+
+        </RelativeLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvMusicItems"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:itemCount="16"
+            tools:listitem="@layout/layout_rv_music_item" />
+
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+    <RelativeLayout
+        android:id="@+id/rlBottomBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:layout_width="@dimen/_70sdp"
+            android:layout_height="@dimen/_70sdp"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/img_play"
+            tools:ignore="ContentDescription" />
+    </RelativeLayout>
+</RelativeLayout>

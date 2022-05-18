@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/background_color"
+    android:orientation="horizontal">
+
+    <ImageView
+        android:id="@+id/icMusic"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="@dimen/_10sdp"
+        android:src="@drawable/ic_music"
+        tools:ignore="ContentDescription" />
+
+    <TextView
+        android:id="@+id/txtTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="@dimen/_10sdp"
+        android:layout_toEndOf="@id/icMusic"
+        android:layout_toStartOf="@id/ll"
+        android:layout_marginEnd="15dp"
+        android:text="@string/on_my_way_alkan_walker"
+        android:textColor="@color/text_color"
+        tools:ignore="RelativeOverlap" />
+
+
+    <LinearLayout
+        android:layout_width="65dp"
+        android:id="@+id/ll"
+        android:layout_height="65dp"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="10dp"
+        android:orientation="vertical">
+
+        <soup.neumorphism.NeumorphCardView
+            android:id="@+id/crdCheckBox"
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            app:neumorph_lightSource="rightBottom"
+            app:neumorph_shadowColorDark="#454343"
+            app:neumorph_shadowColorLight="@color/black"
+            app:neumorph_shadowElevation="4dp"
+            app:neumorph_shapeAppearance="@style/Custom.Neumorph.CardView">
+
+            <LinearLayout
+                android:id="@+id/llCheckBox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/icCheckBox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="7dp"
+                    android:src="@drawable/ic_checkbox_unchecked"
+                    tools:ignore="ContentDescription" />
+
+            </LinearLayout>
+
+        </soup.neumorphism.NeumorphCardView>
+
+
+    </LinearLayout>
+
+
+</RelativeLayout>

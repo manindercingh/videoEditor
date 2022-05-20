@@ -61,7 +61,7 @@ public class MusicItemsAdapter extends RecyclerView.Adapter<MusicItemsAdapter.Vi
             valuesList.set(position, position);
             click(holder, position);
 //            Toast.makeText(requireContext, "clicked", Toast.LENGTH_SHORT).show();
-//            getMusicItem.getMusic(position, musicItemsList.get(position).getUri());
+            getMusicItem.getMusic(position, musicItemsList.get(position).getUri());
         });
 
     }

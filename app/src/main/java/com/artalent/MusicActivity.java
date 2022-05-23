@@ -27,10 +27,12 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.artalent.models.MusicModel;
 import com.artalent.retrofit.MVVM;
 import com.artalent.utility.AWSUtils;
 import com.artalent.utility.AwsConstants;
 import com.artalent.utility.UriUtils;
+import com.artalent.models.MusicItemsAdapter;
 
 import java.io.File;
 import java.io.IOException;

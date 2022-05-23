@@ -1,13 +1,11 @@
 package com.artalent.retrofit;
 
-import com.artalent.MusicModel;
+import com.artalent.models.MusicModel;
 
-import okhttp3.MultipartBody;
 import retrofit2.Call;
 import retrofit2.http.Field;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
-import retrofit2.http.Part;
 
 public interface ApiInterface {
 

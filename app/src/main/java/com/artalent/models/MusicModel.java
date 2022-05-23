@@ -1,4 +1,4 @@
-package com.artalent;
+package com.artalent.models;
 
 import java.util.ArrayList;
 import java.util.Date;

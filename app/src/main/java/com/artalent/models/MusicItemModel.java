@@ -1,4 +1,4 @@
-package com.artalent;
+package com.artalent.models;
 
 public class MusicItemModel {
     public String audioTitle;

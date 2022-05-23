@@ -33,9 +33,12 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.artalent.adapters.MultipleViewsAdapter;
+import com.artalent.threads.ThreadsInActivity;
 import com.artalent.utility.CommonUtils;
 import com.artalent.utility.ErrorActivity;
 import com.artalent.utility.UriUtils;
+import com.artalent.models.VideoUri;
 import com.arthenica.ffmpegkit.FFmpegKit;
 import com.arthenica.ffmpegkit.FFmpegSession;
 import com.arthenica.ffmpegkit.ReturnCode;

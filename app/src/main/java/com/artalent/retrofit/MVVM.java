@@ -8,7 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.artalent.MusicModel;
+import com.artalent.models.MusicModel;
 import com.artalent.utility.CommonUtils;
 
 import retrofit2.Call;

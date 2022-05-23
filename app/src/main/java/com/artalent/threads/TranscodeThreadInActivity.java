@@ -1,8 +1,9 @@
-package com.artalent;
+package com.artalent.threads;
 
 import android.os.Environment;
 import android.util.Log;
 
+import com.artalent.MainActivity;
 import com.artalent.utility.CommonUtils;
 import com.arthenica.ffmpegkit.FFmpegKit;
 import com.arthenica.ffmpegkit.FFmpegSession;

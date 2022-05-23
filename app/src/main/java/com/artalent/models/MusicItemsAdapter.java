@@ -1,4 +1,4 @@
-package com.artalent;
+package com.artalent.models;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -11,6 +11,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.artalent.R;
 
 import java.util.ArrayList;
 import java.util.List;

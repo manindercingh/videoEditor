@@ -8,6 +8,7 @@ import com.amazonaws.HttpMethod;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferNetworkLossHandler;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
@@ -65,6 +66,7 @@ public class AWSUtils {
 
 
         try {
+            TransferNetworkLossHandler.getInstance(context);
             TransferObserver observer = getTransferUtility(context).upload(
                     AwsConstants.BUCKET_NAME, //Bucket name
                     filePathKey + file.getName(), image //File name with folder path
@@ -112,8 +114,6 @@ public class AWSUtils {
 
                 Toast.makeText(context, "File Uploaded Successfully ", Toast.LENGTH_SHORT).show();
 //                Toast.makeText(context, "" + finalImageUrl, Toast.LENGTH_SHORT).show();
-
-
 //                onAwsImageUploadListener.onSuccess(generateS3SignedUrl(finalImageUrl));
             } else if (state == TransferState.CANCELED || state == TransferState.FAILED) {
                 onAwsImageUploadListener.hideProgressDialog();

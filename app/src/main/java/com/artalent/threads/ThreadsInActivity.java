@@ -1,4 +1,4 @@
-package com.artalent;
+package com.artalent.threads;
 
 import static android.content.ContentValues.TAG;
 
@@ -7,6 +7,8 @@ import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
 
+import com.artalent.MainActivity;
+import com.artalent.models.VideoUri;
 import com.arthenica.ffmpegkit.FFmpegKit;
 import com.arthenica.ffmpegkit.FFmpegSession;
 import com.arthenica.ffmpegkit.ReturnCode;

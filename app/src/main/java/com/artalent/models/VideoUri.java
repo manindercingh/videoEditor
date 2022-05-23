@@ -1,4 +1,4 @@
-package com.artalent;
+package com.artalent.models;
 
 import android.content.Context;
 import android.media.MediaMetadataRetriever;

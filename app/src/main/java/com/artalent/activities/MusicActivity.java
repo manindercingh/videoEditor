@@ -1,4 +1,4 @@
-package com.artalent;
+package com.artalent.activities;
 
 import static com.artalent.utility.AwsConstants.MY_ACCESS_KEY_ID;
 
@@ -27,12 +27,13 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.artalent.R;
+import com.artalent.models.MusicItemsAdapter;
 import com.artalent.models.MusicModel;
 import com.artalent.retrofit.MVVM;
 import com.artalent.utility.AWSUtils;
 import com.artalent.utility.AwsConstants;
 import com.artalent.utility.UriUtils;
-import com.artalent.models.MusicItemsAdapter;
 
 import java.io.File;
 import java.io.IOException;
@@ -132,6 +133,7 @@ public class MusicActivity extends AppCompatActivity implements MusicItemsAdapte
     }
 
     private void setClicks() {
+
         icBack.setOnClickListener(v -> onBackPressed());
 
         rlAdd.setOnClickListener(v -> {
@@ -203,17 +205,11 @@ public class MusicActivity extends AppCompatActivity implements MusicItemsAdapte
         }
     }
 
-    private void uploadToS3() {
-
-
-    }
 
     @Override
     public void getMusic(int sIndex, String musicUrl) {
 
         if (!mediaPlayer.isPlaying()) {
-//            Toast.makeText(this, musicUrl, Toast.LENGTH_SHORT).show();
-
             try {
                 mediaPlayer.setDataSource(musicUrl);
                 mediaPlayer.prepare();
@@ -239,6 +235,14 @@ public class MusicActivity extends AppCompatActivity implements MusicItemsAdapte
 
         }
 
+    }
+
+    @Override
+    public void selectMusic(int sIndex, String url, String musicName) {
+        Intent intent = new Intent(MusicActivity.this, EditAudioActivity.class);
+        intent.putExtra("MUSIC_URL", url);
+        intent.putExtra("MUSIC_NAME", musicName);
+        startActivity(intent);
     }
 
     @Override

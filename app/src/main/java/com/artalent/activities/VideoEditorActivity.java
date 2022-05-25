@@ -1,4 +1,4 @@
-package com.artalent;
+package com.artalent.activities;
 
 
 import android.Manifest;
@@ -33,12 +33,13 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.artalent.R;
 import com.artalent.adapters.MultipleViewsAdapter;
+import com.artalent.models.VideoUri;
 import com.artalent.threads.ThreadsInActivity;
 import com.artalent.utility.CommonUtils;
 import com.artalent.utility.ErrorActivity;
 import com.artalent.utility.UriUtils;
-import com.artalent.models.VideoUri;
 import com.arthenica.ffmpegkit.FFmpegKit;
 import com.arthenica.ffmpegkit.FFmpegSession;
 import com.arthenica.ffmpegkit.ReturnCode;
@@ -52,13 +53,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import soup.neumorphism.NeumorphCardView;
 
 //TO WORK
-public class MainActivity extends AppCompatActivity implements MultipleViewsAdapter.Click {
+public class VideoEditorActivity extends AppCompatActivity implements MultipleViewsAdapter.Click {
     public static final String TAG = "ar_talent_video_editor";
     public static String WIDTH = "";
     public static String EDITOR_TYPE = "";
@@ -100,18 +100,51 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_video_editor);
         initializeFFMPEG();
         findIds();
         setClicks();
         setAdapters();
-        clearCache();
+//        getMusicFromUri();
+    }
+
+    private void getMusicFromUri() {
+        Intent intent = getIntent();
+        yourRealPath = intent.getStringExtra("GET_VIDEO_FROM_REACT_NATIVE");
+        File file = new File(yourRealPath);
+        selectedVideoUri = Uri.fromFile(file);
+        if (yourRealPath != null) {
+            yourRealPath = UriUtils.getPathFromUri(VideoEditorActivity.this, selectedVideoUri);
+            olderPath = yourRealPath;
+            MediaPlayer m = MediaPlayer.create(VideoEditorActivity.this, selectedVideoUri);
+            VIDEO_DURATION = m.getDuration();
+            videoView.setVideoPath(yourRealPath);
+            imgFrame.setVisibility(View.GONE);
+            videoView.setVisibility(View.VISIBLE);
+            rlVideoFrame.setVisibility(View.VISIBLE);
+            videoUri = new VideoUri(yourRealPath, VideoEditorActivity.this);
+            videoUris.add(videoUri);
+            selectedItemIndex = videoUris.size() - 1;
+            manageAddButton();
+            MediaPlayer mp = MediaPlayer.create(this, selectedVideoUri);
+            int duration = mp.getDuration();
+            Log.i(TAG, "" + "HEIGHT : " + mp.getVideoHeight() + "WIDTH : " + mp.getVideoWidth());
+            rangeSeekBar.setRangeValues(0, duration);
+            rangeSeekBar.setSelectedMinValue(0);
+            rangeSeekBar.setSelectedMaxValue(duration);
+            Log.i(TAG, "" + duration);
+            videoView.start();
+            onVideoCompleteListener();
+            String strFileName = new File(yourRealPath).getName();
+            txtAudioTitle.setText(strFileName);
+            setAdapters();
+        }
     }
 
     @SuppressLint("NotifyDataSetChanged")
     private void openDialog() {
 
-        Dialog dialog = new Dialog(MainActivity.this);
+        Dialog dialog = new Dialog(VideoEditorActivity.this);
 
         dialog.setContentView(R.layout.layout_dialog_delete);
 
@@ -266,15 +299,15 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
     }
 
     private void manageVideo() {
-        yourRealPath = UriUtils.getPathFromUri(MainActivity.this, selectedVideoUri);
+        yourRealPath = UriUtils.getPathFromUri(VideoEditorActivity.this, selectedVideoUri);
         olderPath = yourRealPath;
-        MediaPlayer m = MediaPlayer.create(MainActivity.this, selectedVideoUri);
+        MediaPlayer m = MediaPlayer.create(VideoEditorActivity.this, selectedVideoUri);
         VIDEO_DURATION = m.getDuration();
         videoView.setVideoPath(yourRealPath);
         imgFrame.setVisibility(View.GONE);
         videoView.setVisibility(View.VISIBLE);
         rlVideoFrame.setVisibility(View.VISIBLE);
-        videoUri = new VideoUri(yourRealPath, MainActivity.this);
+        videoUri = new VideoUri(yourRealPath, VideoEditorActivity.this);
         videoUris.add(videoUri);
         selectedItemIndex = videoUris.size() - 1;
         manageAddButton();
@@ -314,25 +347,25 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 if (filterType.equalsIgnoreCase("EXPOSURE")) {
-                    Toast.makeText(MainActivity.this, "EXPOSURE : " + seekBar.getProgress(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(VideoEditorActivity.this, "EXPOSURE : " + seekBar.getProgress(), Toast.LENGTH_SHORT).show();
                 } else if (filterType.equalsIgnoreCase("BRIGHTNESS")) {
-                    Toast.makeText(MainActivity.this, "BRIGHTNESS : " + seekBar.getProgress(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(VideoEditorActivity.this, "BRIGHTNESS : " + seekBar.getProgress(), Toast.LENGTH_SHORT).show();
                 } else if (filterType.equalsIgnoreCase("CONTRAST")) {
-                    Toast.makeText(MainActivity.this, "CONTRAST : " + seekBar.getProgress(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(VideoEditorActivity.this, "CONTRAST : " + seekBar.getProgress(), Toast.LENGTH_SHORT).show();
                 } else if (filterType.equalsIgnoreCase("SATURATION")) {
-                    Toast.makeText(MainActivity.this, "SATURATION : " + seekBar.getProgress(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(VideoEditorActivity.this, "SATURATION : " + seekBar.getProgress(), Toast.LENGTH_SHORT).show();
                 } else if (filterType.equalsIgnoreCase("FADE")) {
-                    Toast.makeText(MainActivity.this, "FADE : " + seekBar.getProgress(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(VideoEditorActivity.this, "FADE : " + seekBar.getProgress(), Toast.LENGTH_SHORT).show();
                 } else if (filterType.equalsIgnoreCase("TINT")) {
-                    Toast.makeText(MainActivity.this, "TINT : " + seekBar.getProgress(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(VideoEditorActivity.this, "TINT : " + seekBar.getProgress(), Toast.LENGTH_SHORT).show();
                 } else if (filterType.equalsIgnoreCase("WARMTH")) {
-                    Toast.makeText(MainActivity.this, "WARMTH : " + seekBar.getProgress(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(VideoEditorActivity.this, "WARMTH : " + seekBar.getProgress(), Toast.LENGTH_SHORT).show();
                 } else if (filterType.equalsIgnoreCase("VOLUME")) {
 
                     float v = seekBar.getProgress();
                     float calc = (float) (v / 10.0);
                     volumeLevel = String.valueOf(calc);
-                    Toast.makeText(MainActivity.this, "VOLUME : " + volumeLevel, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(VideoEditorActivity.this, "VOLUME : " + volumeLevel, Toast.LENGTH_SHORT).show();
                 }
 
             }
@@ -366,10 +399,10 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
             }
 
         });
+
         llSpeedInc.setOnClickListener(v -> {
             if (selectedVideoUri != null) {
                 EDITOR_TYPE = "llSpeedInc";
-                CommonUtils.showDialog(MainActivity.this);
                 runOnUiThread(this::executeFastMotionVideoCommand);
                 cardView.setVisibility(View.VISIBLE);
                 rlSpeed.setVisibility(View.GONE);
@@ -380,7 +413,6 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
         llSpeedDec.setOnClickListener(v -> {
             if (selectedVideoUri != null) {
                 EDITOR_TYPE = "llSpeedDec";
-                CommonUtils.showDialog(MainActivity.this);
 //                runOnUiThread(this::executeSlowMotionVideoCommand);
                 executeSlowMotionVideoCommand();
                 cardView.setVisibility(View.VISIBLE);
@@ -400,11 +432,11 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
                 llPreDefinedFilters.setVisibility(View.GONE);
                 llFilterOptions.setVisibility(View.GONE);
 
-                icSpeed.setColorFilter(ContextCompat.getColor(MainActivity.this, R.color.app_color));
-                icPreDefinedFilters.setColorFilter(ContextCompat.getColor(MainActivity.this, R.color.text_color));
-                icTrim.setColorFilter(ContextCompat.getColor(MainActivity.this, R.color.text_color));
-                icRotate.setColorFilter(ContextCompat.getColor(MainActivity.this, R.color.text_color));
-                icFilters.setColorFilter(ContextCompat.getColor(MainActivity.this, R.color.text_color));
+                icSpeed.setColorFilter(ContextCompat.getColor(VideoEditorActivity.this, R.color.app_color));
+                icPreDefinedFilters.setColorFilter(ContextCompat.getColor(VideoEditorActivity.this, R.color.text_color));
+                icTrim.setColorFilter(ContextCompat.getColor(VideoEditorActivity.this, R.color.text_color));
+                icRotate.setColorFilter(ContextCompat.getColor(VideoEditorActivity.this, R.color.text_color));
+                icFilters.setColorFilter(ContextCompat.getColor(VideoEditorActivity.this, R.color.text_color));
             } else
                 Snackbar.make(rlMainView, "Please upload a video", snackDuration).show();
         });
@@ -418,11 +450,11 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
                 crdTrimmer.setVisibility(View.GONE);
                 rlSpeed.setVisibility(View.GONE);
                 rlSeekBar.setVisibility(View.GONE);
-                icFilters.setColorFilter(ContextCompat.getColor(MainActivity.this, R.color.app_color));
-                icSpeed.setColorFilter(ContextCompat.getColor(MainActivity.this, R.color.text_color));
-                icPreDefinedFilters.setColorFilter(ContextCompat.getColor(MainActivity.this, R.color.text_color));
-                icTrim.setColorFilter(ContextCompat.getColor(MainActivity.this, R.color.text_color));
-                icRotate.setColorFilter(ContextCompat.getColor(MainActivity.this, R.color.text_color));
+                icFilters.setColorFilter(ContextCompat.getColor(VideoEditorActivity.this, R.color.app_color));
+                icSpeed.setColorFilter(ContextCompat.getColor(VideoEditorActivity.this, R.color.text_color));
+                icPreDefinedFilters.setColorFilter(ContextCompat.getColor(VideoEditorActivity.this, R.color.text_color));
+                icTrim.setColorFilter(ContextCompat.getColor(VideoEditorActivity.this, R.color.text_color));
+                icRotate.setColorFilter(ContextCompat.getColor(VideoEditorActivity.this, R.color.text_color));
 
             } else {
                 Snackbar.make(rlMainView, "Please upload a video", snackDuration).show();
@@ -437,7 +469,7 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
             } else {
                 mAnglePosition = mAnglePosition - 90;
             }
-            CommonUtils.showDialog(MainActivity.this);
+
             runOnUiThread(this::executeRotateVideoCommand);
         });
 
@@ -447,7 +479,7 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
 //            } else {
             mAnglePosition = mAnglePosition - 90;
 //            }
-            CommonUtils.showDialog(MainActivity.this);
+
             runOnUiThread(this::executeRotateVideoCommand);
 
         });
@@ -465,11 +497,11 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
                 llFilterOptions.setVisibility(View.GONE);
                 rlSpeed.setVisibility(View.GONE);
 
-                icRotate.setColorFilter(ContextCompat.getColor(MainActivity.this, R.color.app_color));
-                icPreDefinedFilters.setColorFilter(ContextCompat.getColor(MainActivity.this, R.color.text_color));
-                icTrim.setColorFilter(ContextCompat.getColor(MainActivity.this, R.color.text_color));
-                icSpeed.setColorFilter(ContextCompat.getColor(MainActivity.this, R.color.text_color));
-                icFilters.setColorFilter(ContextCompat.getColor(MainActivity.this, R.color.text_color));
+                icRotate.setColorFilter(ContextCompat.getColor(VideoEditorActivity.this, R.color.app_color));
+                icPreDefinedFilters.setColorFilter(ContextCompat.getColor(VideoEditorActivity.this, R.color.text_color));
+                icTrim.setColorFilter(ContextCompat.getColor(VideoEditorActivity.this, R.color.text_color));
+                icSpeed.setColorFilter(ContextCompat.getColor(VideoEditorActivity.this, R.color.text_color));
+                icFilters.setColorFilter(ContextCompat.getColor(VideoEditorActivity.this, R.color.text_color));
 
             } else {
                 Snackbar.make(rlMainView, "Please upload a video", snackDuration).show();
@@ -483,7 +515,7 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
 //
 //
 //                runOnUiThread(() -> {
-//                    CommonUtils.showDialog(MainActivity.this);
+//
 //                    executeFadeInFadeOutCommand();
 //                });
 //
@@ -502,11 +534,11 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
                 rlSpeed.setVisibility(View.GONE);
                 llRotate.setVisibility(View.GONE);
 
-                icPreDefinedFilters.setColorFilter(ContextCompat.getColor(MainActivity.this, R.color.app_color));
-                icTrim.setColorFilter(ContextCompat.getColor(MainActivity.this, R.color.text_color));
-                icRotate.setColorFilter(ContextCompat.getColor(MainActivity.this, R.color.text_color));
-                icSpeed.setColorFilter(ContextCompat.getColor(MainActivity.this, R.color.text_color));
-                icFilters.setColorFilter(ContextCompat.getColor(MainActivity.this, R.color.text_color));
+                icPreDefinedFilters.setColorFilter(ContextCompat.getColor(VideoEditorActivity.this, R.color.app_color));
+                icTrim.setColorFilter(ContextCompat.getColor(VideoEditorActivity.this, R.color.text_color));
+                icRotate.setColorFilter(ContextCompat.getColor(VideoEditorActivity.this, R.color.text_color));
+                icSpeed.setColorFilter(ContextCompat.getColor(VideoEditorActivity.this, R.color.text_color));
+                icFilters.setColorFilter(ContextCompat.getColor(VideoEditorActivity.this, R.color.text_color));
             }
         });
 
@@ -524,11 +556,11 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
 
         icTrim.setOnClickListener(v -> {
             if (selectedVideoUri != null) {
-                icTrim.setColorFilter(ContextCompat.getColor(MainActivity.this, R.color.app_color));
-                icPreDefinedFilters.setColorFilter(ContextCompat.getColor(MainActivity.this, R.color.text_color));
-                icRotate.setColorFilter(ContextCompat.getColor(MainActivity.this, R.color.text_color));
-                icSpeed.setColorFilter(ContextCompat.getColor(MainActivity.this, R.color.text_color));
-                icFilters.setColorFilter(ContextCompat.getColor(MainActivity.this, R.color.text_color));
+                icTrim.setColorFilter(ContextCompat.getColor(VideoEditorActivity.this, R.color.app_color));
+                icPreDefinedFilters.setColorFilter(ContextCompat.getColor(VideoEditorActivity.this, R.color.text_color));
+                icRotate.setColorFilter(ContextCompat.getColor(VideoEditorActivity.this, R.color.text_color));
+                icSpeed.setColorFilter(ContextCompat.getColor(VideoEditorActivity.this, R.color.text_color));
+                icFilters.setColorFilter(ContextCompat.getColor(VideoEditorActivity.this, R.color.text_color));
                 crdTrimmer.setVisibility(View.VISIBLE);
                 llRotate.setVisibility(View.GONE);
                 llFilterOptions.setVisibility(View.GONE);
@@ -564,8 +596,15 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
             if (selectedVideoUri != null) {
                 try {
                     EDITOR_TYPE = "icStartTrimming";
-                    CommonUtils.showDialog(MainActivity.this);
-                    icTrim.setColorFilter(ContextCompat.getColor(MainActivity.this, R.color.text_color));
+
+                    Thread thread = new Thread() {
+                        @Override
+                        public void run() {
+                            runOnUiThread(() -> CommonUtils.showDialog(VideoEditorActivity.this));
+                        }
+                    };
+                    thread.start();
+                    icTrim.setColorFilter(ContextCompat.getColor(VideoEditorActivity.this, R.color.text_color));
                     runOnUiThread(() -> executeTrimVideoCommand(minVal, maxVal));
                     cardView.setVisibility(View.VISIBLE);
                     crdTrimmer.setVisibility(View.GONE);
@@ -636,7 +675,7 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
 
         crdMusic.setOnClickListener(v -> {
             if (selectedVideoUri != null) {
-                Intent intent = new Intent(MainActivity.this, MusicActivity.class);
+                Intent intent = new Intent(VideoEditorActivity.this, MusicActivity.class);
                 startActivity(intent);
 
             } else {
@@ -663,21 +702,21 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
             cardView.setVisibility(View.VISIBLE);
 
             if (filterType.equalsIgnoreCase("EXPOSURE")) {
-                Toast.makeText(MainActivity.this, "EXPOSURE : ", Toast.LENGTH_SHORT).show();
+                Toast.makeText(VideoEditorActivity.this, "EXPOSURE : ", Toast.LENGTH_SHORT).show();
             } else if (filterType.equalsIgnoreCase("BRIGHTNESS")) {
-                Toast.makeText(MainActivity.this, "BRIGHTNESS : ", Toast.LENGTH_SHORT).show();
+                Toast.makeText(VideoEditorActivity.this, "BRIGHTNESS : ", Toast.LENGTH_SHORT).show();
             } else if (filterType.equalsIgnoreCase("CONTRAST")) {
-                Toast.makeText(MainActivity.this, "CONTRAST : ", Toast.LENGTH_SHORT).show();
+                Toast.makeText(VideoEditorActivity.this, "CONTRAST : ", Toast.LENGTH_SHORT).show();
             } else if (filterType.equalsIgnoreCase("SATURATION")) {
-                Toast.makeText(MainActivity.this, "SATURATION : ", Toast.LENGTH_SHORT).show();
+                Toast.makeText(VideoEditorActivity.this, "SATURATION : ", Toast.LENGTH_SHORT).show();
             } else if (filterType.equalsIgnoreCase("FADE")) {
-                Toast.makeText(MainActivity.this, "FADE : ", Toast.LENGTH_SHORT).show();
+                Toast.makeText(VideoEditorActivity.this, "FADE : ", Toast.LENGTH_SHORT).show();
             } else if (filterType.equalsIgnoreCase("TINT")) {
-                Toast.makeText(MainActivity.this, "TINT : ", Toast.LENGTH_SHORT).show();
+                Toast.makeText(VideoEditorActivity.this, "TINT : ", Toast.LENGTH_SHORT).show();
             } else if (filterType.equalsIgnoreCase("WARMTH")) {
-                Toast.makeText(MainActivity.this, "WARMTH : ", Toast.LENGTH_SHORT).show();
+                Toast.makeText(VideoEditorActivity.this, "WARMTH : ", Toast.LENGTH_SHORT).show();
             } else if (filterType.equalsIgnoreCase("VOLUME")) {
-                Toast.makeText(MainActivity.this, "VOLUME : ", Toast.LENGTH_SHORT).show();
+                Toast.makeText(VideoEditorActivity.this, "VOLUME : ", Toast.LENGTH_SHORT).show();
                 runOnUiThread(() -> executeAudioCommand(volumeLevel));
             }
 
@@ -743,7 +782,7 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
             if (selectedVideoUri != null) {
                 if (cardView.getVisibility() == View.VISIBLE) {
                     if (videoUri.totalDuration(videoUris) <= 90000) {
-                        CommonUtils.showDialog(MainActivity.this);
+
                         runOnUiThread(this::merging);
                     } else {
                         Toast.makeText(this, "Your Video is more than 90 Seconds", Toast.LENGTH_SHORT).show();
@@ -767,7 +806,7 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
     public void mergeAndExportVideos() {
         EDITOR_TYPE = "FINAL_VIDEO";
         File moviesDir = new File(Environment.getExternalStorageDirectory().getPath() + "/" + "ARTalent");
-        if (!moviesDir.isDirectory()) moviesDir.mkdir();
+        if (!moviesDir.isDirectory()) moviesDir.mkdirs();
         String currentDate = new SimpleDateFormat("dd-MM-yyyy-HH_mm_ss", Locale.getDefault()).format(new Date());
         String filePrefix = "ar-talent" + currentDate;
         String fileExtension = ".mp4";
@@ -793,7 +832,7 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
             dest = new File(moviesDir, filePrefix + fileNo + fileExtension);
         }
         Log.i(TAG, "startTrim: src: " + yourRealPath);
-        Log.i(TAG, "startTrim: dest: " + dest.getAbsolutePath());
+        Log.i(TAG, "yourRealPath  : " + dest.getAbsolutePath());
         filePath = dest.getAbsolutePath();
         afterEditFilePath = dest;
         String size = String.valueOf(videoUris.size());
@@ -878,11 +917,12 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
      * Command for executing transition video
      */
     private void executeFadeInFadeOutCommand() {
-        File moviesDir = new File(Environment.getExternalStorageDirectory().getPath() + "/" + "ARTalent" + "/" + ".cache");
-        if (!moviesDir.isDirectory()) moviesDir.mkdirs();
+        File moviesDir = new File(getApplicationInfo().dataDir);
+
+
         String filePrefix = "fade_video";
         String fileExtension = ".mp4";
-        yourRealPath = UriUtils.getPathFromUri(MainActivity.this, selectedVideoUri);
+        yourRealPath = UriUtils.getPathFromUri(VideoEditorActivity.this, selectedVideoUri);
         File dest = new File(moviesDir, filePrefix + fileExtension);
         int fileNo = 0;
         while (dest.exists()) {
@@ -890,7 +930,7 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
             dest = new File(moviesDir, filePrefix + fileNo + fileExtension);
         }
         Log.i(TAG, "startTrim: src: " + yourRealPath);
-        Log.i(TAG, "startTrim: dest: " + dest.getAbsolutePath());
+        Log.i(TAG, "yourRealPath  : " + dest.getAbsolutePath());
         filePath = dest.getAbsolutePath();
         afterEditFilePath = dest;
         Toast.makeText(this, videoUris.get(selectedItemIndex).getDuration() + "", Toast.LENGTH_SHORT).show();
@@ -910,8 +950,8 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
      * Command for creating fast motion video
      */
     private void executeFastMotionVideoCommand() {
-        File moviesDir = new File(Environment.getExternalStorageDirectory().getPath() + "/" + "ARTalent" + "/" + ".cache");
-        if (!moviesDir.isDirectory()) moviesDir.mkdirs();
+        File moviesDir = new File(getApplicationInfo().dataDir);
+
 
         String filePrefix = "speed_video";
         String fileExtension = ".mp4";
@@ -925,7 +965,7 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
 
 
         Log.i(TAG, "startTrim: src: " + yourRealPath);
-        Log.i(TAG, "startTrim: dest: " + dest.getAbsolutePath());
+        Log.i(TAG, "yourRealPath  : " + dest.getAbsolutePath());
         filePath = dest.getAbsolutePath();
         afterEditFilePath = dest;
         String complexCommand = "-y " + "-i " + yourRealPath + " -filter_complex" + " [0:v]setpts=0.5*PTS[v];[0:a]atempo=2.0[a] " + "-map " + "[v] " + "-map " + "[a] " + "-b:v " + "2097k " + "-r " + "60 " + "-vcodec " + "mpeg4 " + filePath;
@@ -936,8 +976,8 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
      * Command for creating slow motion video
      */
     private void executeSlowMotionVideoCommand() {
-        File moviesDir = new File(Environment.getExternalStorageDirectory().getPath() + "/" + "ARTalent" + "/" + ".cache");
-        if (!moviesDir.isDirectory()) moviesDir.mkdirs();
+        File moviesDir = new File(getApplicationInfo().dataDir);
+
 
         String filePrefix = "slowMotion_video";
         String fileExtension = ".mp4";
@@ -950,14 +990,13 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
         }
 
 
-        Log.i(TAG, "startTrim: src: " + yourRealPath);
-        Log.i(TAG, "startTrim: dest: " + dest.getAbsolutePath());
+        Log.i(TAG, "yourRealPath " + yourRealPath);
+        Log.i(TAG, "yourRealPath  : " + dest.getAbsolutePath());
         filePath = dest.getAbsolutePath();
         afterEditFilePath = dest;
         String complexCommand = "-y " + "-i " + yourRealPath + " -filter_complex " + "[0:v]setpts=2.0*PTS[v];[0:a]atempo=0.5[a] " + "-map " + "[v] " + "-map " + "[a] " + "-b:v " + "2097k " + "-r " + "60 " + "-vcodec " + "mpeg4 " + filePath;
 
         executeComplexCommand(complexCommand);
-
 
     }
 
@@ -968,7 +1007,7 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
     private void undoWithOlderVideo() {
         videoView.setVideoPath(olderPath);
         videoView.start();
-        VideoUri videoUri2 = new VideoUri(olderPath, MainActivity.this);
+        VideoUri videoUri2 = new VideoUri(olderPath, VideoEditorActivity.this);
         videoUris.set(selectedItemIndex, videoUri2);
         setAdapters();
     }
@@ -978,10 +1017,9 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
         FFmpegSession session = FFmpegKit.execute(command);
         if (ReturnCode.isSuccess(session.getReturnCode())) {
             removeColors();
-            CommonUtils.dismissDialog();
             if (EDITOR_TYPE.equalsIgnoreCase("SCALING_VIDEO")) {
-                MediaPlayer mediaPlayer = MediaPlayer.create(MainActivity.this, Uri.parse(filePath));
-                Log.i(TAG, "VIDEO_HEIGHT : " + mediaPlayer.getVideoHeight() + " " + "VIDEO_WIDTH : " + mediaPlayer.getVideoWidth());
+                MediaPlayer mediaPlayer = MediaPlayer.create(VideoEditorActivity.this, Uri.parse(filePath));
+                Log.i(TAG, "VIDEO_HEIGHT : " + mediaPlayer.getVideoHeight() + " " + " VIDEO_WIDTH : " + mediaPlayer.getVideoWidth());
                 if (mediaPlayer.getVideoWidth() != 1280 && mediaPlayer.getVideoHeight() != 720) {
                     Toast.makeText(this, "START SCALING AGAIN", Toast.LENGTH_SHORT).show();
                 } else {
@@ -994,15 +1032,15 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
             Log.i(TAG, "Path After Execution PATH : " + afterEditFilePath.getPath());
             Log.i(TAG, "File Name : " + afterEditFilePath.getName());
             selectedVideoUri = Uri.fromFile(new File(filePath));
-            VideoUri videoUri2 = new VideoUri(filePath, MainActivity.this);
+            VideoUri videoUri2 = new VideoUri(filePath, VideoEditorActivity.this);
             videoUris.set(selectedItemIndex, videoUri2);
             if (EDITOR_TYPE.equalsIgnoreCase("FINAL_VIDEO")) {
                 EDITOR_TYPE = "";
                 videoUris.clear();
-                VideoUri videoUri = new VideoUri(filePath, MainActivity.this);
+                VideoUri videoUri = new VideoUri(filePath, VideoEditorActivity.this);
                 videoUris.add(videoUri);
                 selectedItemIndex = 0;
-                runOnUiThread(this::clearCache);
+//                runOnUiThread(this::clearCache);
             }
 
             try {
@@ -1013,7 +1051,7 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
                 txtAudioTitle.setText(new File(filePath).getName());
                 videoView.start();
                 onVideoCompleteListener();
-                Toast.makeText(MainActivity.this, "SUCCESS", Toast.LENGTH_SHORT).show();
+                Toast.makeText(VideoEditorActivity.this, "SUCCESS", Toast.LENGTH_SHORT).show();
             } catch (Exception e) {
                 Log.i(TAG, "ERROR : " + e);
             }
@@ -1024,17 +1062,16 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
             File newFile = new File(filePath);
             newFile.delete();
             Log.i(TAG, "CANCELLED" + " " + session.getAllLogsAsString());
-            Intent intent = new Intent(MainActivity.this, ErrorActivity.class);
+            Intent intent = new Intent(VideoEditorActivity.this, ErrorActivity.class);
             intent.putExtra("TAG", session.getAllLogsAsString());
             startActivity(intent);
         } else {
             CommonUtils.dismissDialog();
-            Intent intent = new Intent(MainActivity.this, ErrorActivity.class);
+            Intent intent = new Intent(VideoEditorActivity.this, ErrorActivity.class);
             intent.putExtra("TAG", session.getAllLogsAsString());
             startActivity(intent);
             File newFile = new File(filePath);
             newFile.delete();
-
             Log.i(TAG, "Failed" + " " + session.getAllLogsAsString());
             Log.i(TAG, String.format("Command failed with state %s and rc %s.%s", session.getState(), session.getReturnCode(), session.getFailStackTrace()));
 
@@ -1093,8 +1130,8 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
      * Command for rotating video
      */
     private void executeRotateVideoCommand() {
-        File moviesDir = new File(Environment.getExternalStorageDirectory().getPath() + "/" + "ARTalent" + "/" + ".cache");
-        if (!moviesDir.isDirectory()) moviesDir.mkdirs();
+        File moviesDir = new File(getApplicationInfo().dataDir);
+
 
         String filePrefix = "rotation_video";
         String fileExtension = ".mp4";
@@ -1104,8 +1141,8 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
             fileNo++;
             dest = new File(moviesDir, filePrefix + fileNo + fileExtension);
         }
-        Log.i(TAG, "startTrim: src: " + yourRealPath);
-        Log.i(TAG, "startTrim: dest: " + dest.getAbsolutePath());
+        Log.i(TAG, "yourRealPath " + yourRealPath);
+        Log.i(TAG, "yourRealPath  : " + dest.getAbsolutePath());
         filePath = dest.getAbsolutePath();
         afterEditFilePath = dest;
         String rotation = "rotate=" + mAnglePosition;
@@ -1119,9 +1156,9 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
      * Command for trimming video
      */
     private void executeTrimVideoCommand(int startMs, int endMs) {
-        runOnUiThread(() -> CommonUtils.showDialog(MainActivity.this));
-        File moviesDir = new File(Environment.getExternalStorageDirectory().getPath() + "/" + "ARTalent" + "/" + ".cache");
-        if (!moviesDir.isDirectory()) moviesDir.mkdirs();
+
+        File moviesDir = new File(getApplicationInfo().dataDir);
+//  
 
         String filePrefix = "rotation_video";
         String fileExtension = ".mp4";
@@ -1131,12 +1168,10 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
             fileNo++;
             dest = new File(moviesDir, filePrefix + fileNo + fileExtension);
         }
-        Log.i(TAG, "startTrim: src: " + yourRealPath);
-        Log.i(TAG, "startTrim: dest: " + dest.getAbsolutePath());
+        Log.i(TAG, "yourRealPath " + yourRealPath);
+        Log.i(TAG, "yourRealPath  : " + dest.getAbsolutePath());
         filePath = dest.getAbsolutePath();
         afterEditFilePath = dest;
-//        String complexCommand = "-ss " + "" + startMs / 1000 + " -y" + " -i " + yourRealPath + " -t" + "" + (endMs - startMs) / 1000 + " -vcodec " + "mpeg4 " + "-b:v " + "2097152 " + "-b:a " + "48000 " + "-ac " + "2 " + "-ar " + "22050 " + filePath;
-//        String complexCommand = "-y -i " + yourRealPath + " -ss " + startMs / 1000 + " -vcodec copy -acodec copy -t " + endMs / 1000 + " " + " -strict" + " -2 " + filePath;
         @SuppressLint("DefaultLocale") String startHms = String.format("%02d:%02d:%02d", TimeUnit.MILLISECONDS.toHours(startMs),
                 TimeUnit.MILLISECONDS.toMinutes(startMs) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(startMs)),
                 TimeUnit.MILLISECONDS.toSeconds(startMs) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(startMs)));
@@ -1152,10 +1187,44 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
 
 
     }
+//    private void executeTrimVideoCommand(int startMs, int endMs) {
+//
+//        File moviesDir = new File(getApplicationInfo().dataDir);
+//  
+//
+//        String filePrefix = "rotation_video";
+//        String fileExtension = ".mp4";
+//        File dest = new File(moviesDir, filePrefix + fileExtension);
+//        int fileNo = 0;
+//        while (dest.exists()) {
+//            fileNo++;
+//            dest = new File(moviesDir, filePrefix + fileNo + fileExtension);
+//        }
+//        Log.i(TAG, "yourRealPath " + yourRealPath);
+//        Log.i(TAG, "yourRealPath  : " + dest.getAbsolutePath());
+//        filePath = dest.getAbsolutePath();
+//        afterEditFilePath = dest;
+////        String complexCommand = "-ss " + "" + startMs / 1000 + " -y" + " -i " + yourRealPath + " -t" + "" + (endMs - startMs) / 1000 + " -vcodec " + "mpeg4 " + "-b:v " + "2097152 " + "-b:a " + "48000 " + "-ac " + "2 " + "-ar " + "22050 " + filePath;
+////        String complexCommand = "-y -i " + yourRealPath + " -ss " + startMs / 1000 + " -vcodec copy -acodec copy -t " + endMs / 1000 + " " + " -strict" + " -2 " + filePath;
+//        @SuppressLint("DefaultLocale") String startHms = String.format("%02d:%02d:%02d", TimeUnit.MILLISECONDS.toHours(startMs),
+//                TimeUnit.MILLISECONDS.toMinutes(startMs) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(startMs)),
+//                TimeUnit.MILLISECONDS.toSeconds(startMs) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(startMs)));
+//        @SuppressLint("DefaultLocale") String endHms = String.format("%02d:%02d:%02d", TimeUnit.MILLISECONDS.toHours(endMs),
+//                TimeUnit.MILLISECONDS.toMinutes(endMs) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(endMs)),
+//                TimeUnit.MILLISECONDS.toSeconds(endMs) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(endMs)));
+//        Log.i(TAG, "TIME_FORMAT_START : " + startHms);
+//        Log.i(TAG, "TIME_FORMAT_END : " + endHms);
+//        String complexCommand = "-y -i " + yourRealPath + " -ss " + startHms + " -to " + endHms + " -c:v copy -c:a copy " + filePath;
+//        Log.i(TAG, "TIME_FORMAT_COMMAND : " + complexCommand);
+//
+//        executeComplexCommand(complexCommand);
+//
+//
+//    }
 
     private void executeCropVideoCommand() {
-        File moviesDir = new File(Environment.getExternalStorageDirectory().getPath() + "/" + "ARTalent" + "/" + ".cache");
-        if (!moviesDir.isDirectory()) moviesDir.mkdirs();
+        File moviesDir = new File(getApplicationInfo().dataDir);
+
 
         String filePrefix = "crop_video";
         String fileExtension = ".mp4";
@@ -1165,8 +1234,8 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
             fileNo++;
             dest = new File(moviesDir, filePrefix + fileNo + fileExtension);
         }
-        Log.i(TAG, "startTrim: src: " + yourRealPath);
-        Log.i(TAG, "startTrim: dest: " + dest.getAbsolutePath());
+        Log.i(TAG, "yourRealPath " + yourRealPath);
+        Log.i(TAG, "yourRealPath  : " + dest.getAbsolutePath());
         filePath = dest.getAbsolutePath();
         afterEditFilePath = dest;
 //        String complexCommand = "-y " + "-i " + yourRealPath + " -filter:v " + "scale=2560:1440,crop=1280:720 " + "-c:a " + "copy " + filePath;
@@ -1179,7 +1248,7 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
     }
 
     void setAdapters() {
-        multipleViewsAdapter = new MultipleViewsAdapter(MainActivity.this, videoUris, MainActivity.this);
+        multipleViewsAdapter = new MultipleViewsAdapter(VideoEditorActivity.this, videoUris, VideoEditorActivity.this);
         rvViews.setAdapter(multipleViewsAdapter);
     }
 
@@ -1192,7 +1261,7 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
         videoView.setVideoPath(uri);
         videoView.start();
         onVideoCompleteListener();
-        MediaPlayer mediaPlayer = MediaPlayer.create(MainActivity.this, Uri.parse(yourRealPath));
+        MediaPlayer mediaPlayer = MediaPlayer.create(VideoEditorActivity.this, Uri.parse(yourRealPath));
         Log.i(TAG, "VIDEO_RESOLUTION " + "WIDTH : " + mediaPlayer.getVideoWidth() + " HEIGHT : " + mediaPlayer.getVideoHeight());
         String title = new File(yourRealPath).getName();
         txtAudioTitle.setText(title);
@@ -1229,27 +1298,27 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
             fileNo++;
             dest = new File(moviesDir, filePrefix + fileNo + fileExtension);
         }
-        Log.i(TAG, "startTrim: src: " + yourRealPath);
-        Log.i(TAG, "startTrim: dest: " + dest.getAbsolutePath());
+        Log.i(TAG, "yourRealPath " + yourRealPath);
+        Log.i(TAG, "yourRealPath  : " + dest.getAbsolutePath());
         filePath = dest.getAbsolutePath();
         afterEditFilePath = dest;
     }
 
     private void scaleVideos() {
 
-        File moviesDir = new File(Environment.getExternalStorageDirectory().getPath() + "/" + "ARTalent" + "/" + ".cache");
-        if (!moviesDir.isDirectory()) moviesDir.mkdirs();
+        File moviesDir = new File(getApplicationInfo().dataDir);
+
         String filePrefix = "ar-talent_scaling";
         String fileExtension = ".mp4";
-        yourRealPath = UriUtils.getPathFromUri(MainActivity.this, selectedVideoUri);
+        yourRealPath = UriUtils.getPathFromUri(VideoEditorActivity.this, selectedVideoUri);
         File dest = new File(moviesDir, filePrefix + fileExtension);
         int fileNo = 0;
         while (dest.exists()) {
             fileNo++;
             dest = new File(moviesDir, filePrefix + fileNo + fileExtension);
         }
-        Log.i(TAG, "startTrim: src: " + yourRealPath);
-        Log.i(TAG, "startTrim: dest: " + dest.getAbsolutePath());
+        Log.i(TAG, "yourRealPath " + yourRealPath);
+        Log.i(TAG, "yourRealPath  : " + dest.getAbsolutePath());
         filePath = dest.getAbsolutePath();
         afterEditFilePath = dest;
         String complexCommand = "-y " + "-i " + yourRealPath + " -vf " + "scale=w=1280:h=720:force_original_aspect_ratio=1,pad=1280:720:(ow-iw)/2:(oh-ih)/2  " + filePath;
@@ -1264,20 +1333,20 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
 
     private void cropVideoOnImport() {
 
-//        File moviesDir = new File(Environment.getExternalStorageDirectory().getPath() + "/" + "ARTalent" + "/" + ".cache");
-        File moviesDir = new File(Environment.getExternalStorageDirectory().getPath() + "/" + "ARTalent" + "/" + ".cache");
-        if (!moviesDir.isDirectory()) moviesDir.mkdirs();
+//        File moviesDir = new File(getApplicationInfo().dataDir);
+        File moviesDir = new File(getApplicationInfo().dataDir);
+
         String filePrefix = "ar-talent_imported";
         String fileExtension = ".mp4";
-        yourRealPath = UriUtils.getPathFromUri(MainActivity.this, selectedVideoUri);
+        yourRealPath = UriUtils.getPathFromUri(VideoEditorActivity.this, selectedVideoUri);
         File dest = new File(moviesDir, filePrefix + fileExtension);
         int fileNo = 0;
         while (dest.exists()) {
             fileNo++;
             dest = new File(moviesDir, filePrefix + fileNo + fileExtension);
         }
-        Log.i(TAG, "startTrim: src: " + yourRealPath);
-        Log.i(TAG, "startTrim: dest: " + dest.getAbsolutePath());
+        Log.i(TAG, "yourRealPath " + yourRealPath);
+        Log.i(TAG, "yourRealPath  : " + dest.getAbsolutePath());
         filePath = dest.getAbsolutePath();
         afterEditFilePath = dest;
         String[] complexCommand = {"-y", "-i", yourRealPath, "-vf", "scale=w=1280:h=720:force_original_aspect_ratio=1,pad=1280:720:(ow-iw)/2:(oh-ih)/2", filePath};
@@ -1285,31 +1354,31 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
 
     }
 
-    void clearCache() {
-
-        File cacheDir = new File(Environment.getExternalStorageDirectory().getPath() + "/" + "ARTalent" + "/" + ".cache");
-
-        if (!cacheDir.isDirectory()) {
-            try {
-                cacheDir.mkdir();
-                Log.i(TAG, "CACHE DIRECTORY CREATED");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        } else {
-            try {
-                String[] children = cacheDir.list();
-                for (int i = 0; Objects.requireNonNull(children).length > i; i++) {
-                    new File(cacheDir, children[i]).delete();
-                }
-                Log.i(TAG, "CACHE CLEARED");
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-    }
+//    void clearCache() {
+//
+//        File cacheDir = new File(Environment.getExternalStorageDirectory().getPath() + "/" + "ARTalent" + "/" + ".cache");
+//
+//        if (!cacheDir.isDirectory()) {
+//            try {
+//                cacheDir.mkdir();
+//                Log.i(TAG, "CACHE DIRECTORY CREATED");
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        } else {
+//            try {
+//                String[] children = cacheDir.list();
+//                for (int i = 0; Objects.requireNonNull(children).length > i; i++) {
+//                    new File(cacheDir, children[i]).delete();
+//                }
+//                Log.i(TAG, "CACHE CLEARED");
+//
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
+//
+//    }
 
     public void merging() {
         isAllTrue.clear();
@@ -1319,7 +1388,7 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
         for (int i = 0; i < videoUris.size(); i++
         ) {
             try {
-                Thread t = new Thread(new ThreadsInActivity(i, MainActivity.this, videoUris.get(i).getVideoPaths()));
+                Thread t = new Thread(new ThreadsInActivity(i, VideoEditorActivity.this, videoUris.get(i).getVideoPaths()));
                 t.start();
 
             } catch (Exception e) {
@@ -1332,8 +1401,8 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
 
 
     private void executeBlackAndWhiteVideoCommand() {
-        File moviesDir = new File(Environment.getExternalStorageDirectory().getPath() + "/" + "ARTalent" + "/" + ".cache");
-        if (!moviesDir.isDirectory()) moviesDir.mkdirs();
+        File moviesDir = new File(getApplicationInfo().dataDir);
+
 
         String filePrefix = "black_and_white_video";
         String fileExtension = ".mp4";
@@ -1344,8 +1413,8 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
             fileNo++;
             dest = new File(moviesDir, filePrefix + fileNo + fileExtension);
         }
-        Log.i(TAG, "startTrim: src: " + yourRealPath);
-        Log.i(TAG, "startTrim: dest: " + dest.getAbsolutePath());
+        Log.i(TAG, "yourRealPath " + yourRealPath);
+        Log.i(TAG, "yourRealPath  : " + dest.getAbsolutePath());
         filePath = dest.getAbsolutePath();
         afterEditFilePath = dest;
         String complexCommand = "-y -i " + yourRealPath + " -vf hue=s=0 " + filePath;
@@ -1353,8 +1422,8 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
     }
 
     private void executeVintageVideoCommand() {
-        File moviesDir = new File(Environment.getExternalStorageDirectory().getPath() + "/" + "ARTalent" + "/" + ".cache");
-        if (!moviesDir.isDirectory()) moviesDir.mkdirs();
+        File moviesDir = new File(getApplicationInfo().dataDir);
+
 
         String filePrefix = "vintage_video";
         String fileExtension = ".mp4";
@@ -1367,8 +1436,8 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
         }
 
 
-        Log.i(TAG, "startTrim: src: " + yourRealPath);
-        Log.i(TAG, "startTrim: dest: " + dest.getAbsolutePath());
+        Log.i(TAG, "yourRealPath " + yourRealPath);
+        Log.i(TAG, "yourRealPath  : " + dest.getAbsolutePath());
         filePath = dest.getAbsolutePath();
         afterEditFilePath = dest;
 
@@ -1378,8 +1447,8 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
     }
 
     private void executeGammaVideoCommand() {
-        File moviesDir = new File(Environment.getExternalStorageDirectory().getPath() + "/" + "ARTalent" + "/" + ".cache");
-        if (!moviesDir.isDirectory()) moviesDir.mkdirs();
+        File moviesDir = new File(getApplicationInfo().dataDir);
+
 
         String filePrefix = "gamma_video";
         String fileExtension = ".mp4";
@@ -1392,8 +1461,8 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
         }
 
 
-        Log.i(TAG, "startTrim: src: " + yourRealPath);
-        Log.i(TAG, "startTrim: dest: " + dest.getAbsolutePath());
+        Log.i(TAG, "yourRealPath " + yourRealPath);
+        Log.i(TAG, "yourRealPath  : " + dest.getAbsolutePath());
         filePath = dest.getAbsolutePath();
         afterEditFilePath = dest;
 
@@ -1404,8 +1473,8 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
     }
 
     private void executeCrossProcessVideoCommand() {
-        File moviesDir = new File(Environment.getExternalStorageDirectory().getPath() + "/" + "ARTalent" + "/" + ".cache");
-        if (!moviesDir.isDirectory()) moviesDir.mkdirs();
+        File moviesDir = new File(getApplicationInfo().dataDir);
+
 
         String filePrefix = "cross_process_video";
         String fileExtension = ".mp4";
@@ -1416,13 +1485,10 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
             fileNo++;
             dest = new File(moviesDir, filePrefix + fileNo + fileExtension);
         }
-
-
-        Log.i(TAG, "startTrim: src: " + yourRealPath);
-        Log.i(TAG, "startTrim: dest: " + dest.getAbsolutePath());
+        Log.i(TAG, "yourRealPath " + yourRealPath);
+        Log.i(TAG, "yourRealPath : " + dest.getAbsolutePath());
         filePath = dest.getAbsolutePath();
         afterEditFilePath = dest;
-
 //        ffmpeg -i INPUT.MOV  OUTPUT.MOV
 //        ffmpeg -i in.mp4 -vf "eq=gamma=0.5" out.mp4
         String complexCommand = "-y -i " + yourRealPath + " -vf curves=preset=cross_process " + filePath;
@@ -1430,8 +1496,8 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
     }
 
     private void executeAudioCommand(String volumeLevel) {
-        File moviesDir = new File(Environment.getExternalStorageDirectory().getPath() + "/" + "ARTalent" + "/" + ".cache");
-        if (!moviesDir.isDirectory()) moviesDir.mkdirs();
+        File moviesDir = new File(getApplicationInfo().dataDir);
+
 
         String filePrefix = "increase_audio";
         String fileExtension = ".mp4";
@@ -1444,8 +1510,8 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
         }
 
 
-        Log.i(TAG, "startTrim: src: " + yourRealPath);
-        Log.i(TAG, "startTrim: dest: " + dest.getAbsolutePath());
+        Log.i(TAG, "yourRealPath " + yourRealPath);
+        Log.i(TAG, "yourRealPath  : " + dest.getAbsolutePath());
         filePath = dest.getAbsolutePath();
         afterEditFilePath = dest;
 
@@ -1456,11 +1522,11 @@ public class MainActivity extends AppCompatActivity implements MultipleViewsAdap
     }
 
     private void removeColors() {
-        icRotate.setColorFilter(ContextCompat.getColor(MainActivity.this, R.color.text_color));
-        icPreDefinedFilters.setColorFilter(ContextCompat.getColor(MainActivity.this, R.color.text_color));
-        icTrim.setColorFilter(ContextCompat.getColor(MainActivity.this, R.color.text_color));
-        icSpeed.setColorFilter(ContextCompat.getColor(MainActivity.this, R.color.text_color));
-        icFilters.setColorFilter(ContextCompat.getColor(MainActivity.this, R.color.text_color));
+        icRotate.setColorFilter(ContextCompat.getColor(VideoEditorActivity.this, R.color.text_color));
+        icPreDefinedFilters.setColorFilter(ContextCompat.getColor(VideoEditorActivity.this, R.color.text_color));
+        icTrim.setColorFilter(ContextCompat.getColor(VideoEditorActivity.this, R.color.text_color));
+        icSpeed.setColorFilter(ContextCompat.getColor(VideoEditorActivity.this, R.color.text_color));
+        icFilters.setColorFilter(ContextCompat.getColor(VideoEditorActivity.this, R.color.text_color));
 
     }
 

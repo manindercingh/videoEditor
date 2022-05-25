@@ -57,7 +57,9 @@ dependencies {
 //    aws server
     implementation 'com.amazonaws:aws-android-sdk-s3:2.44.0'
 
-//    implementation platform('com.amazonaws:aws-java-sdk-bom:1.11.1000')
-//    implementation 'com.amazonaws:aws-java-sdk-s3'
+//    Rangeseekbar
+    implementation 'com.github.MohammedAlaaMorsi:RangeSeekBar:1.0.6'
+//    implementation 'com.crystal:crystalrangeseekbar:1.1.3'
+
 
 }

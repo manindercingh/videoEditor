@@ -47,11 +47,11 @@ public class MusicItemsAdapter extends RecyclerView.Adapter<MusicItemsAdapter.Vi
 
         valuesList.add(0);
 
-//        holder.itemView.setOnClickListener(v -> {
-//            click(holder, position);
-//            getMusicItem.getMusic(position, musicItemsList.get(position).getUri());
-//        });
-//
+        holder.itemView.setOnClickListener(v -> {
+            click(holder, position);
+            getMusicItem.selectMusic(position, musicItemsList.get(position).getUri(), musicItemsList.get(position).getName());
+        });
+
 //        holder.crdCheckBox.setOnClickListener(v -> {
 //            click(holder, position);
 //            Toast.makeText(requireContext, "clicked", Toast.LENGTH_SHORT).show();
@@ -68,6 +68,7 @@ public class MusicItemsAdapter extends RecyclerView.Adapter<MusicItemsAdapter.Vi
 
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private void click(ViewHolder holder, int pos) {
         notifyDataSetChanged();
         if (valuesList.get(pos) == selectedIndex) {
@@ -88,6 +89,8 @@ public class MusicItemsAdapter extends RecyclerView.Adapter<MusicItemsAdapter.Vi
 
     public interface GetMusicItem {
         void getMusic(int sIndex, String musicUrl);
+
+        void selectMusic(int sIndex, String musicUrl, String musicName);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

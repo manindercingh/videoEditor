@@ -97,25 +97,24 @@
 
     </androidx.appcompat.widget.LinearLayoutCompat>
 
-    <com.mohammedalaa.seekbar.DoubleValueSeekBarView
-        android:id="@+id/double_range_seekbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/llTitle"
-        android:layout_marginHorizontal="15dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:r2barHeight="15dp"
-        app:r2baseColor="@color/navy"
-        app:r2circleFillColor="@color/black"
-        app:r2circleRadius="@dimen/_15sdp"
-        app:r2circleTextColor="@color/black"
-        app:r2circleTextSize="@dimen/value_bar_circleTextSize"
-        app:r2fillColor="@color/app_color"
-        app:r2maxValue="100"
-        app:r2maxValueStep="1"
-        app:r2minValue="0"
-        app:r2minValueStep="1" />
+        <com.mohammedalaa.seekbar.DoubleValueSeekBarView
+            android:id="@+id/double_range_seekbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/llTitle"
+            android:layout_marginHorizontal="15dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:r2barHeight="16dp"
+            app:r2baseColor="@color/navy"
+            app:r2circleFillColor="@color/black"
+            app:r2circleRadius="@dimen/_12sdp"
+            app:r2circleTextColor="@color/black"
+            app:r2circleTextSize="0sp"
+            app:r2fillColor="@color/app_color"
+            app:r2maxValueStep="1"
+            app:r2minValue="0"
+            app:r2minValueStep="1" />
 
     <ImageView
         android:id="@+id/imgPlay"

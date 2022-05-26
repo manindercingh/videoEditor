@@ -37,6 +37,7 @@ import com.artalent.R;
 import com.artalent.adapters.MultipleViewsAdapter;
 import com.artalent.models.VideoUri;
 import com.artalent.threads.ThreadsInActivity;
+import com.artalent.utility.AwsConstants;
 import com.artalent.utility.CommonUtils;
 import com.artalent.utility.ErrorActivity;
 import com.artalent.utility.UriUtils;
@@ -108,62 +109,18 @@ public class VideoEditorActivity extends AppCompatActivity implements MultipleVi
 //        getMusicFromUri();
     }
 
-    private void getMusicFromUri() {
-        Intent intent = getIntent();
-        yourRealPath = intent.getStringExtra("GET_VIDEO_FROM_REACT_NATIVE");
-        File file = new File(yourRealPath);
-        selectedVideoUri = Uri.fromFile(file);
-        if (yourRealPath != null) {
-            yourRealPath = UriUtils.getPathFromUri(VideoEditorActivity.this, selectedVideoUri);
-            olderPath = yourRealPath;
-            MediaPlayer m = MediaPlayer.create(VideoEditorActivity.this, selectedVideoUri);
-            VIDEO_DURATION = m.getDuration();
-            videoView.setVideoPath(yourRealPath);
-            imgFrame.setVisibility(View.GONE);
-            videoView.setVisibility(View.VISIBLE);
-            rlVideoFrame.setVisibility(View.VISIBLE);
-            videoUri = new VideoUri(yourRealPath, VideoEditorActivity.this);
-            videoUris.add(videoUri);
-            selectedItemIndex = videoUris.size() - 1;
-            manageAddButton();
-            MediaPlayer mp = MediaPlayer.create(this, selectedVideoUri);
-            int duration = mp.getDuration();
-            Log.i(TAG, "" + "HEIGHT : " + mp.getVideoHeight() + "WIDTH : " + mp.getVideoWidth());
-            rangeSeekBar.setRangeValues(0, duration);
-            rangeSeekBar.setSelectedMinValue(0);
-            rangeSeekBar.setSelectedMaxValue(duration);
-            Log.i(TAG, "" + duration);
-            videoView.start();
-            onVideoCompleteListener();
-            String strFileName = new File(yourRealPath).getName();
-            txtAudioTitle.setText(strFileName);
-            setAdapters();
-        }
-    }
-
     @SuppressLint("NotifyDataSetChanged")
     private void openDialog() {
-
         Dialog dialog = new Dialog(VideoEditorActivity.this);
-
         dialog.setContentView(R.layout.layout_dialog_delete);
-
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-
         dialog.setCanceledOnTouchOutside(false);
-
         Window window = dialog.getWindow();
-
         window.setGravity(Gravity.CENTER);
-
         dialog.show();
-
         dialog.findViewById(R.id.crdCancel).setOnClickListener(v2 -> dialog.dismiss());
-
         dialog.findViewById(R.id.btnCancel).setOnClickListener(v2 -> dialog.dismiss());
-
         dialog.findViewById(R.id.btnDelete).setOnClickListener(v -> {
-
             try {
                 videoUris.remove(selectedItemIndex);
                 multipleViewsAdapter.notifyDataSetChanged();
@@ -188,7 +145,6 @@ public class VideoEditorActivity extends AppCompatActivity implements MultipleVi
             dialog.dismiss();
 
         });
-
         dialog.findViewById(R.id.crdDeleteItem).setOnClickListener(v -> {
 
             try {
@@ -273,7 +229,6 @@ public class VideoEditorActivity extends AppCompatActivity implements MultipleVi
     }
 
     void onVideoCompleteListener() {
-
         crdPlay.setVisibility(View.GONE);
         crdPause.setVisibility(View.VISIBLE);
         videoView.setOnCompletionListener(mp -> {
@@ -675,9 +630,10 @@ public class VideoEditorActivity extends AppCompatActivity implements MultipleVi
 
         crdMusic.setOnClickListener(v -> {
             if (selectedVideoUri != null) {
+                AwsConstants.VIDEO_LENGTH = videoUri.getDuration();
+                Log.i(TAG, "VIDEO_LENGTH" + AwsConstants.VIDEO_LENGTH);
                 Intent intent = new Intent(VideoEditorActivity.this, MusicActivity.class);
                 startActivity(intent);
-
             } else {
                 Snackbar.make(rlMainView, "Please upload a video", snackDuration).show();
             }

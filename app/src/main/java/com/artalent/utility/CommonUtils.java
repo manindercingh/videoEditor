@@ -47,29 +47,5 @@ public class CommonUtils {
         }
     }
 
-    public static void downloadAudio(Context context, String url, String outputName) {
-        Toast.makeText(context, "Downloading...", Toast.LENGTH_SHORT).show();
-        File direct = new File(context.getApplicationInfo().dataDir);
-        Log.i("ar_talent", "audioPath : " + outputName);
-        if (!direct.isDirectory()) direct.mkdirs();
-        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
-        request.setDescription("Download Audio");
-        request.setTitle(outputName);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            request.allowScanningByMediaScanner();
-            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE);
-        }
-        request.setDestinationInExternalPublicDir(context.getApplicationInfo().dataDir, outputName);
 
-// get download service and enqueue file
-        DownloadManager manager = (DownloadManager) context.getSystemService(context.DOWNLOAD_SERVICE);
-        long abc = manager.enqueue(request);
-
-        if (abc != 0) {
-            Toast.makeText(context, "download started", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(context, "no download started", Toast.LENGTH_SHORT).show();
-        }
-//        addWatermark(context, url);
-    }
 }

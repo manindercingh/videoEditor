@@ -3,7 +3,7 @@ package com.artalent.threads;
 import android.os.Environment;
 import android.util.Log;
 
-import com.artalent.MainActivity;
+import com.artalent.activities.VideoEditorActivity;
 import com.artalent.utility.CommonUtils;
 import com.arthenica.ffmpegkit.FFmpegKit;
 import com.arthenica.ffmpegkit.FFmpegSession;
@@ -19,12 +19,12 @@ import java.util.Locale;
 public class TranscodeThreadInActivity implements Runnable {
 
     String filePath;
-    MainActivity mainActivity;
+    VideoEditorActivity mainActivity;
     boolean allTrue = true;
     int index;
     List<String> tsPaths = new ArrayList<>();
 
-    public TranscodeThreadInActivity(MainActivity mainActivity, int index) {
+    public TranscodeThreadInActivity(VideoEditorActivity mainActivity, int index) {
         this.mainActivity = mainActivity;
         this.index = index;
     }
@@ -35,12 +35,12 @@ public class TranscodeThreadInActivity implements Runnable {
     }
 
     public synchronized void changeListValues(int index) {
-        Log.i(MainActivity.TAG, "called");
-        MainActivity.isAllTSTrue.size();
-        MainActivity.isAllTSTrue.set(index, true);
-        for (int i = 0; MainActivity.isAllTSTrue.size() > i; i++
+        Log.i(VideoEditorActivity.TAG, "called");
+        VideoEditorActivity.isAllTSTrue.size();
+        VideoEditorActivity.isAllTSTrue.set(index, true);
+        for (int i = 0; VideoEditorActivity.isAllTSTrue.size() > i; i++
         ) {
-            if (!MainActivity.isAllTSTrue.get(i)) {
+            if (!VideoEditorActivity.isAllTSTrue.get(i)) {
                 allTrue = false;
             } else {
                 allTrue = true;
@@ -53,18 +53,16 @@ public class TranscodeThreadInActivity implements Runnable {
                     mainActivity.mergeAndExportVideos();
                 }
             }.start();
-            Log.i(MainActivity.TAG, "IF_STATEMENT : " + MainActivity.isAllTSTrue.toString());
+            Log.i(VideoEditorActivity.TAG, "IF_STATEMENT : " + VideoEditorActivity.isAllTSTrue.toString());
         } else {
-            Log.i(MainActivity.TAG, " ELSE : " + MainActivity.isAllTSTrue);
+            Log.i(VideoEditorActivity.TAG, " ELSE : " + VideoEditorActivity.isAllTSTrue);
         }
 
     }
 
 
     public void convertTS() {
-        File moviesDir = new File(Environment.getExternalStorageDirectory().getPath() + "/" + "Ar-Talent" + "/" + ".cache");
-        if (!moviesDir.isDirectory()) moviesDir.mkdir();
-
+        File moviesDir = new File(mainActivity.getApplicationInfo().dataDir);
         String currentDate = new SimpleDateFormat("dd-MM-yyyy-HH_mm_ss", Locale.getDefault()).format(new Date());
         String filePrefix = "temp_f" + currentDate;
         String fileExtension = ".ts";
@@ -75,11 +73,11 @@ public class TranscodeThreadInActivity implements Runnable {
             dest = new File(moviesDir, filePrefix + fileNo + fileExtension);
         }
         filePath = dest.getAbsolutePath();
-        String complexCommand = "-y -i " + " " + MainActivity.videoUris.get(index).getVideoPaths() + " -c" + " copy" + " -bsf:v h264_mp4toannexb -f mpegts " + filePath;
+        String complexCommand = "-y -i " + " " + VideoEditorActivity.videoUris.get(index).getVideoPaths() + " -c" + " copy" + " -bsf:v h264_mp4toannexb -f mpegts " + filePath;
 //        String com = "-y -i " + MainActivity.videoUris.get(index).getVideoPaths() + " -c copy -bsf:v h264_mp4toannexb -f mpegts " + filePath;
 //        exec('ffmpeg -i abc.mp4 -c:v libx264 -c:a aac -b:a 160k -bsf:v h264_mp4toannexb -f mpegts -crf 32 pqr.ts');
-        String com = "-y -i " + MainActivity.videoUris.get(index).getVideoPaths() + " -c copy -bsf:v h264_mp4toannexb -f mpegts " + filePath;
-        Log.i(MainActivity.TAG, "NEW_EXPORT_COMMAND_IN_THREAD : " + complexCommand);
+        String com = "-y -i " + VideoEditorActivity.videoUris.get(index).getVideoPaths() + " -c copy -bsf:v h264_mp4toannexb -f mpegts " + filePath;
+        Log.i(VideoEditorActivity.TAG, "NEW_EXPORT_COMMAND_IN_THREAD : " + complexCommand);
         executeTS(com);
     }
 
@@ -91,7 +89,7 @@ public class TranscodeThreadInActivity implements Runnable {
             try {
                 CommonUtils.dismissDialog();
 //            tsPaths.add(index, filePath);
-                Log.i(MainActivity.TAG, "SUCCESS" + " " + session.getAllLogsAsString());
+                Log.i(VideoEditorActivity.TAG, "SUCCESS" + " " + session.getAllLogsAsString());
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -100,13 +98,13 @@ public class TranscodeThreadInActivity implements Runnable {
             CommonUtils.dismissDialog();
             File newFile = new File(filePath);
             newFile.delete();
-            Log.i(MainActivity.TAG, "CANCELLED" + " " + session.getAllLogsAsString());
+            Log.i(VideoEditorActivity.TAG, "CANCELLED" + " " + session.getAllLogsAsString());
         } else {
             File newFile = new File(filePath);
             newFile.delete();
             CommonUtils.dismissDialog();
-            Log.i(MainActivity.TAG, "Failed" + " " + session.getAllLogsAsString());
-            Log.d(MainActivity.TAG, String.format("Command failed with state %s and rc %s.%s", session.getState(), session.getReturnCode(), session.getFailStackTrace()));
+            Log.i(VideoEditorActivity.TAG, "Failed" + " " + session.getAllLogsAsString());
+            Log.d(VideoEditorActivity.TAG, String.format("Command failed with state %s and rc %s.%s", session.getState(), session.getReturnCode(), session.getFailStackTrace()));
 
         }
 

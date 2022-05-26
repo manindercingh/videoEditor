@@ -19,9 +19,11 @@
         <entry key="app/src/main/res/drawable/seek_bar_active_view.xml" value="0.1" />
         <entry key="app/src/main/res/drawable/seek_bar_end_view.xml" value="0.1" />
         <entry key="app/src/main/res/drawable/seek_bar_inactive_view.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/activity_edit_audio.xml" value="0.22708333333333333" />
         <entry key="app/src/main/res/layout/activity_error.xml" value="0.1" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.22" />
         <entry key="app/src/main/res/layout/activity_music.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/activity_video_editor.xml" value="0.22708333333333333" />
         <entry key="app/src/main/res/layout/layout_dialog_delete.xml" value="0.45286506469500926" />
         <entry key="app/src/main/res/layout/layout_progress_dialog.xml" value="0.22708333333333333" />
         <entry key="app/src/main/res/layout/layout_rv_music_item.xml" value="0.33" />

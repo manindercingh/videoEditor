@@ -7,7 +7,7 @@ import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
 
-import com.artalent.MainActivity;
+import com.artalent.activities.VideoEditorActivity;
 import com.artalent.models.VideoUri;
 import com.arthenica.ffmpegkit.FFmpegKit;
 import com.arthenica.ffmpegkit.FFmpegSession;
@@ -22,12 +22,12 @@ public class ThreadsInActivity implements Runnable {
     String paths;
     Uri selectedVideoUri;
     int st = 0;
-    MainActivity mainActivity;
+    VideoEditorActivity mainActivity;
     File afterEditFilePath;
     boolean allTrue;
     String filepath;
 
-    ThreadsInActivity(int index, MainActivity mainActivity, String paths) {
+    public ThreadsInActivity(int index, VideoEditorActivity mainActivity, String paths) {
         this.index = index;
         this.paths = paths;
         this.mainActivity = mainActivity;
@@ -35,17 +35,17 @@ public class ThreadsInActivity implements Runnable {
 
     @Override
     public void run() {
-        Log.i(MainActivity.TAG, "CURRENT_THREAD : " + Thread.currentThread());
+        Log.i(VideoEditorActivity.TAG, "CURRENT_THREAD : " + Thread.currentThread());
         runScaleCommand();
     }
 
     public synchronized void changeListValues(int index) {
-        Log.i(MainActivity.TAG, "called");
+        Log.i(VideoEditorActivity.TAG, "called");
         st++;
-        MainActivity.isAllTrue.size();
-        MainActivity.isAllTrue.set(index, true);
-        looper:for (int i = 0; MainActivity.isAllTrue.size() > i; i++) {
-            if (!MainActivity.isAllTrue.get(i)) {
+        VideoEditorActivity.isAllTrue.size();
+        VideoEditorActivity.isAllTrue.set(index, true);
+        looper:for (int i = 0; VideoEditorActivity.isAllTrue.size() > i; i++) {
+            if (!VideoEditorActivity.isAllTrue.get(i)) {
                 allTrue = false;
                 break looper;
             } else {
@@ -55,22 +55,22 @@ public class ThreadsInActivity implements Runnable {
         }
         if (allTrue) {
 
-            Log.i(MainActivity.TAG, "ON_MERGING RESOLUTIONS" + getResolution() + " PATH : " + list() + " " + Thread.currentThread());
+            Log.i(VideoEditorActivity.TAG, "ON_MERGING RESOLUTIONS" + getResolution() + " PATH : " + list() + " " + Thread.currentThread());
 
 
             mainActivity.mergeAndExportVideos();
 
-            Log.i(MainActivity.TAG, "IF_STATEMENT : " + MainActivity.isAllTrue.toString());
-            Log.i(MainActivity.TAG, "AFTER_SCALING_PATHS : " + list());
+            Log.i(VideoEditorActivity.TAG, "IF_STATEMENT : " + VideoEditorActivity.isAllTrue.toString());
+            Log.i(VideoEditorActivity.TAG, "AFTER_SCALING_PATHS : " + list());
 
         } else {
-            Log.i(MainActivity.TAG, " ELSE : " + MainActivity.isAllTrue + " val " + st);
+            Log.i(VideoEditorActivity.TAG, " ELSE : " + VideoEditorActivity.isAllTrue + " val " + st);
         }
 
     }
 
     void runScaleCommand() {
-        File moviesDir = new File(Environment.getExternalStorageDirectory().getPath() + "/" + "ARTalent" + "/" + ".cache");
+        File moviesDir = new File(mainActivity.getApplicationInfo().dataDir);
         if (!moviesDir.isDirectory()) moviesDir.mkdirs();
 
         Random random = new Random();
@@ -96,35 +96,35 @@ public class ThreadsInActivity implements Runnable {
 
         FFmpegSession session = FFmpegKit.execute(command);
         if (ReturnCode.isSuccess(session.getReturnCode())) {
-            MainActivity.yourRealPath = afterEditFilePath.getAbsolutePath();
+            VideoEditorActivity.yourRealPath = afterEditFilePath.getAbsolutePath();
             selectedVideoUri = Uri.fromFile(new File(filepath));
             VideoUri videoUri2 = new VideoUri(filepath, mainActivity);
-            MainActivity.videoUris.set(index, videoUri2);
-            MediaPlayer mediaPlayer = MediaPlayer.create(mainActivity, Uri.parse(MainActivity.videoUris.get(index).getVideoPaths()));
+            VideoEditorActivity.videoUris.set(index, videoUri2);
+            MediaPlayer mediaPlayer = MediaPlayer.create(mainActivity, Uri.parse(VideoEditorActivity.videoUris.get(index).getVideoPaths()));
             if (mediaPlayer.getVideoWidth() == 1280 && mediaPlayer.getVideoHeight() == 720) {
                 changeListValues(index);
                 Log.i(TAG, "changeListValues" + mediaPlayer.getVideoHeight() + " " + mediaPlayer.getVideoWidth());
             } else {
                 Log.i(TAG, "RE_RUN_SCALE_COMMAND" + mediaPlayer.getVideoHeight() + " " + mediaPlayer.getVideoWidth());
-                paths = MainActivity.videoUris.get(index).getVideoPaths();
+                paths = VideoEditorActivity.videoUris.get(index).getVideoPaths();
                 runScaleCommand();
             }
 
-            Log.i(MainActivity.TAG, "ACTIVITY_FILEPATH" + filepath + " t " + Thread.currentThread());
-            Log.i(MainActivity.TAG, "CURRENT_THREAD");
+            Log.i(VideoEditorActivity.TAG, "ACTIVITY_FILEPATH" + filepath + " t " + Thread.currentThread());
+            Log.i(VideoEditorActivity.TAG, "CURRENT_THREAD");
 
         } else if (ReturnCode.isCancel(session.getReturnCode())) {
 
 
             File newFile = new File(filepath);
             newFile.delete();
-            Log.i(MainActivity.TAG, "Cancel" + " " + session.getReturnCode());
+            Log.i(VideoEditorActivity.TAG, "Cancel" + " " + session.getReturnCode());
         } else {
 
             File newFile = new File(filepath);
             newFile.delete();
 
-            Log.i(MainActivity.TAG, "Failed" + " " + session.getReturnCode());
+            Log.i(VideoEditorActivity.TAG, "Failed" + " " + session.getReturnCode());
             Log.d(TAG, String.format("Command failed with state %s and rc %s.%s", session.getState(), session.getReturnCode(), session.getFailStackTrace()));
 
         }
@@ -133,9 +133,9 @@ public class ThreadsInActivity implements Runnable {
 
     private String list() {
         StringBuilder values = new StringBuilder();
-        for (int i = 0; i < MainActivity.videoUris.size(); i++) {
+        for (int i = 0; i < VideoEditorActivity.videoUris.size(); i++) {
 
-            values.append(" , ").append(MainActivity.videoUris.get(i).getVideoPaths());
+            values.append(" , ").append(VideoEditorActivity.videoUris.get(i).getVideoPaths());
         }
         return values.toString();
     }
@@ -143,10 +143,10 @@ public class ThreadsInActivity implements Runnable {
     private String getResolution() {
         StringBuilder values = new StringBuilder();
 
-        for (int i = 0; i < MainActivity.videoUris.size(); i++) {
-            MediaPlayer mp = MediaPlayer.create(mainActivity, Uri.parse(MainActivity.videoUris.get(i).getVideoPaths()));
+        for (int i = 0; i < VideoEditorActivity.videoUris.size(); i++) {
+            MediaPlayer mp = MediaPlayer.create(mainActivity, Uri.parse(VideoEditorActivity.videoUris.get(i).getVideoPaths()));
             values.append(" , HEIGHT ").append(mp.getVideoHeight()).append("WIDTH").append(mp.getVideoWidth());
-            Log.i(MainActivity.TAG, "RESOLUTION_HEIGHT : " + mp.getVideoHeight() + " RESOLUTION_WIDTH : " + mp.getVideoWidth());
+            Log.i(VideoEditorActivity.TAG, "RESOLUTION_HEIGHT : " + mp.getVideoHeight() + " RESOLUTION_WIDTH : " + mp.getVideoWidth());
 
         }
         return values.toString();

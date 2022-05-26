@@ -2,21 +2,23 @@ package com.artalent.utility;
 
 
 import android.app.Activity;
+import android.app.DownloadManager;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
+import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 
 import com.artalent.R;
 
 import java.io.File;
-
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
 
 public class CommonUtils {
 
@@ -44,5 +46,6 @@ public class CommonUtils {
             alertDialog.dismiss();
         }
     }
+
 
 }

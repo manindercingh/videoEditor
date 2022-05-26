@@ -3,7 +3,7 @@ package com.artalent.utility;
 import com.amazonaws.regions.Regions;
 
 public class AwsConstants {
-    public static  String MUSIC_NAME = "";
+    public static  String MUSIC_PATH = "";
     public static String COGNITO_IDENTITY_ID = "ap-south-1:03175e9c-3209-422d-bff8-e714aedc2e74";
     public static Regions COGNITO_REGION = Regions.AP_SOUTH_1;
     public static String BUCKET_NAME = "images123456";

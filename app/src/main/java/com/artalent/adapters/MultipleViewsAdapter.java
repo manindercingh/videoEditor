@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.artalent.MainActivity;
+import com.artalent.activities.VideoEditorActivity;
 import com.artalent.R;
 import com.artalent.models.VideoUri;
 
@@ -40,7 +40,7 @@ public class MultipleViewsAdapter extends RecyclerView.Adapter<MultipleViewsAdap
     public void onBindViewHolder(@NonNull ViewHolder holder, @SuppressLint("RecyclerView") int position) {
 
 
-        int width = Integer.parseInt(MainActivity.WIDTH);
+        int width = Integer.parseInt(VideoEditorActivity.WIDTH);
         int newWidth = width * videoUris.get(position).getDuration() / 90000;
         Log.i("TAG", newWidth + " " + videoUris.get(position).getDuration());
         ViewGroup.LayoutParams layoutParams = holder.view.getLayoutParams();
@@ -51,10 +51,10 @@ public class MultipleViewsAdapter extends RecyclerView.Adapter<MultipleViewsAdap
             notifyDataSetChanged();
         });
 
-        if (MainActivity.selectedItemIndex == position) {
+        if (VideoEditorActivity.selectedItemIndex == position) {
             holder.view.setBackgroundResource(R.drawable.bg_on_view);
         }
-        if (MainActivity.selectedItemIndex != position) {
+        if (VideoEditorActivity.selectedItemIndex != position) {
             holder.view.setBackgroundResource(R.drawable.bg_off_view);
         }
 

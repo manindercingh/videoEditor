@@ -1,5 +1,6 @@
-package com.artalent;
+package com.artalent.activities;
 
+import static com.artalent.activities.VideoEditorActivity.TAG;
 import static com.artalent.utility.AwsConstants.MY_ACCESS_KEY_ID;
 
 import android.content.Intent;
@@ -14,8 +15,10 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
@@ -27,12 +30,14 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.artalent.R;
+import com.artalent.models.MusicItemsAdapter;
 import com.artalent.models.MusicModel;
 import com.artalent.retrofit.MVVM;
 import com.artalent.utility.AWSUtils;
 import com.artalent.utility.AwsConstants;
 import com.artalent.utility.UriUtils;
-import com.artalent.models.MusicItemsAdapter;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,7 +51,7 @@ public class MusicActivity extends AppCompatActivity implements MusicItemsAdapte
     private ImageView icBack;
     private RecyclerView rvMusicItems;
     private MediaPlayer mediaPlayer;
-    private RelativeLayout rlAdd;
+    private RelativeLayout rlAdd, mView;
     private MusicItemsAdapter musicItemsAdapter;
     private String strFilePath;
 
@@ -129,9 +134,11 @@ public class MusicActivity extends AppCompatActivity implements MusicItemsAdapte
         edtSearchView = findViewById(R.id.edtSearchView);
         rvMusicItems = findViewById(R.id.rvMusicItems);
         rlAdd = findViewById(R.id.rlAdd);
+        mView = findViewById(R.id.rlView);
     }
 
     private void setClicks() {
+
         icBack.setOnClickListener(v -> onBackPressed());
 
         rlAdd.setOnClickListener(v -> {
@@ -203,17 +210,11 @@ public class MusicActivity extends AppCompatActivity implements MusicItemsAdapte
         }
     }
 
-    private void uploadToS3() {
-
-
-    }
 
     @Override
     public void getMusic(int sIndex, String musicUrl) {
 
         if (!mediaPlayer.isPlaying()) {
-//            Toast.makeText(this, musicUrl, Toast.LENGTH_SHORT).show();
-
             try {
                 mediaPlayer.setDataSource(musicUrl);
                 mediaPlayer.prepare();
@@ -239,6 +240,35 @@ public class MusicActivity extends AppCompatActivity implements MusicItemsAdapte
 
         }
 
+    }
+
+    @NonNull
+    @Override
+    public AppCompatDelegate getDelegate() {
+        return super.getDelegate();
+    }
+
+    @Override
+    public void selectMusic(int sIndex, String url, String musicName) {
+//        if (AwsConstants.VIDEO_LENGTH > mediaPlayer.getDuration()) {
+            Log.i(TAG, "VIDEO_LENGTH : "+AwsConstants.VIDEO_LENGTH+" MUSIC_LENGTH : "+mediaPlayer.getDuration());
+            Intent intent = new Intent(MusicActivity.this, EditAudioActivity.class);
+            intent.putExtra("MUSIC_URL", url);
+            intent.putExtra("MUSIC_NAME", musicName);
+            startActivity(intent);
+            finish();
+//        } else {
+//            Log.i(TAG, "VIDEO_LENGTH : "+AwsConstants.VIDEO_LENGTH+" MUSIC_LENGTH : "+mediaPlayer.getDuration());
+//
+//            Snackbar.make(mView, "Please choose another music", 2500).show();
+//        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mediaPlayer.stop();
+        Log.i("ar_talent", "onDestroy()");
     }
 
     @Override

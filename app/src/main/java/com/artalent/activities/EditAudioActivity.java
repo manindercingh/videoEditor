@@ -33,6 +33,7 @@ import com.mohammedalaa.seekbar.DoubleValueSeekBarView;
 import com.mohammedalaa.seekbar.OnDoubleValueSeekBarChangeListener;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import soup.neumorphism.NeumorphCardView;
@@ -124,7 +125,10 @@ public class EditAudioActivity extends AppCompatActivity {
         Log.i("ar_talent", "MusicName : " + musicName);
         Log.i("ar_talent", "Music Url : " + musicURL);
         Log.i(TAG, "videoLength: " + videoLength + " audioLength: " + musicDuration);
-        downloadAudio(EditAudioActivity.this, musicURL, musicName);
+
+        String name = musicName;
+        name = name.replace(" ", "_");
+        downloadAudio(EditAudioActivity.this, musicURL, name);
         fileName = musicName;
 
 
@@ -159,8 +163,11 @@ public class EditAudioActivity extends AppCompatActivity {
 
         crdDone.setOnClickListener(v -> {
 
+            String name = fileName;
+            name = name.replace(" ", "_");
+            Log.e(TAG, "MUSIC_NAME: " + name);
             if (isDownloading) {
-                File cacheDir = new File(Environment.getExternalStorageDirectory() + "/" + "ARTalent", fileName);
+                File cacheDir = new File(Environment.getExternalStorageDirectory() + "/" + "ARTalent", name);
 
                 if (cacheDir.exists()) {
                     inputPath = cacheDir.getPath();
@@ -219,8 +226,8 @@ public class EditAudioActivity extends AppCompatActivity {
 
 
                 mediaPlayer.seekTo(i * 1000);
-                startingMS = i*1000;
-                endingMS = i1*1000;
+                startingMS = i * 1000;
+                endingMS = i1 * 1000;
                 mediaPlayer.start();
                 playMusic();
 
@@ -228,7 +235,7 @@ public class EditAudioActivity extends AppCompatActivity {
                     mediaPlayer.pause();
                     imgPlay.setVisibility(View.VISIBLE);
                     imgPause.setVisibility(View.GONE);
-                }, pauseMusicDuration);
+                }, videoLength * 1000L);
 
             }
 
@@ -273,13 +280,17 @@ public class EditAudioActivity extends AppCompatActivity {
 
         File moviesDir = new File(getApplicationInfo().dataDir);
         String filePrefix = "trimming_audio";
-        String fileExtension = ".mp4";
+        String fileExtension = ".mp3";
         File dest = new File(moviesDir, filePrefix + fileExtension);
         int fileNo = 0;
         while (dest.exists()) {
             fileNo++;
             dest = new File(moviesDir, filePrefix + fileNo + fileExtension);
+            AwsConstants.FINAL_MUSIC_NAME_CACHE = filePrefix + fileNo + fileExtension;
         }
+
+        AwsConstants.FINAL_FILE_CACHE = dest;
+        String outputFile = dest.getAbsolutePath();
         Log.i(TAG, "yourRealPath  : " + dest.getAbsolutePath());
         Log.i(TAG, "START_MS : " + startMs);
         Log.i(TAG, "END_MS : " + endMs);
@@ -291,9 +302,8 @@ public class EditAudioActivity extends AppCompatActivity {
                 TimeUnit.MILLISECONDS.toSeconds(endMs) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(endMs)));
         Log.i(TAG, "TIME_FORMAT_START : " + startHms);
         Log.i(TAG, "TIME_FORMAT_END : " + endHms);
-        String complexCommand = "-y -i " + inputPath + " -ss " + startHms + " -to " + endHms + " -c:a copy " + dest.getAbsolutePath();
+        String complexCommand = "-y -i " + inputPath + " -ss " + startHms + " -to " + endHms + " -c copy " + outputFile;
         Log.i(TAG, "TIME_FORMAT_COMMAND : " + complexCommand);
-
         executeComplexCommand(complexCommand);
 
     }
@@ -302,7 +312,17 @@ public class EditAudioActivity extends AppCompatActivity {
         FFmpegSession session = FFmpegKit.execute(command);
         if (ReturnCode.isSuccess(session.getReturnCode())) {
 
+            Log.i(TAG, "FILE: " + AwsConstants.FINAL_FILE_CACHE.getPath() + " MUSIC_NAME: " + AwsConstants.FINAL_MUSIC_NAME_CACHE);
             Log.i(TAG, "SUCCESS with output : " + session.getAllLogsAsString());
+
+            File musicDIR = new File(AwsConstants.FINAL_FILE_CACHE.getParent(), AwsConstants.FINAL_MUSIC_NAME_CACHE);
+
+            if (musicDIR.exists()) {
+                Toast.makeText(this, "MUSIC EXISTS", Toast.LENGTH_SHORT).show();
+
+            } else {
+                Toast.makeText(this, "Error Trimming Music", Toast.LENGTH_SHORT).show();
+            }
 
         } else if (ReturnCode.isCancel(session.getReturnCode())) {
 
@@ -320,53 +340,6 @@ public class EditAudioActivity extends AppCompatActivity {
             Log.i(TAG, String.format("Command failed with state %s and rc %s.%s", session.getState(), session.getReturnCode(), session.getFailStackTrace()));
 
         }
-
-//        FFmpeg.executeAsync(command, (executionId, returnCode) -> {
-//
-//            if (returnCode == RETURN_CODE_SUCCESS) {
-//
-//                Log.i(TAG, "SUCCESS");
-//                Log.i(TAG, "SUCCESS with output : " + returnCode);
-//                yourRealPath = afterEditFilePath.getAbsolutePath();
-//                Log.i(TAG, "Path After Execution getAbsolutePath : " + yourRealPath);
-//                Log.i(TAG, "Path After Execution PATH : " + afterEditFilePath.getPath());
-//                Log.i(TAG, "File Name : " + afterEditFilePath.getName());
-//                selectedVideoUri = Uri.fromFile(new File(filePath));
-//                VideoUri videoUri2 = new VideoUri(filePath, MainActivity.this);
-//                videoUris.set(selectedItemIndex, videoUri2);
-//
-//                if (EDITOR_TYPE.equals("FINAL_VIDEO")) {
-//                    EDITOR_TYPE = "";
-//                    videoUris.clear();
-//                    VideoUri videoUri = new VideoUri(filePath, MainActivity.this);
-//                    videoUris.add(videoUri);
-//                    txtAudioTitle.setText(new File(filePath).getName());
-//                    selectedItemIndex = 0;
-//                    runOnUiThread(this::clearCache);
-//                }
-//                multipleViewsAdapter.notifyDataSetChanged();
-//                videoView.setVideoPath(filePath);
-//                imgFrame.setVisibility(View.GONE);
-//                videoView.setVisibility(View.VISIBLE);
-//                crdPlay.setVisibility(View.GONE);
-//                crdPause.setVisibility(View.VISIBLE);
-//                videoView.start();
-//                onVideoCompleteListener();
-//            } else if (returnCode == RETURN_CODE_CANCEL) {
-//
-//
-//                File newFile = new File(filePath);
-//                newFile.delete();
-//                Log.i(TAG, "Failed" + " " + returnCode);
-//            } else {
-//
-//                File newFile = new File(filePath);
-//                newFile.delete();
-//
-//                Log.i(TAG, "Failed" + " " + returnCode);
-//            }
-//
-//        });
 
     }
 }

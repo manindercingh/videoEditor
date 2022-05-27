@@ -4,6 +4,7 @@ package com.artalent.activities;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -21,6 +22,7 @@ import android.view.View;
 import android.view.Window;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -54,6 +56,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import soup.neumorphism.NeumorphCardView;
@@ -759,8 +762,53 @@ public class VideoEditorActivity extends AppCompatActivity implements MultipleVi
     }
 
 
+//    public void mergeAndExportVideos() {
+//        EDITOR_TYPE = "FINAL_VIDEO";
+//
+//        File moviesDir = new File(Environment.getExternalStorageDirectory().getPath() + "/" + "ARTalent");
+//        if (!moviesDir.isDirectory()) moviesDir.mkdirs();
+//        String currentDate = new SimpleDateFormat("dd-MM-yyyy-HH_mm_ss", Locale.getDefault()).format(new Date());
+//        String filePrefix = "ar-talent" + currentDate;
+//        String fileExtension = ".mp4";
+//        String paths = "";
+//        String maps = "";
+//        String[] comand = new String[(videoUris.size() * 2)];
+//        for (int i = 0; i < videoUris.size(); i++) {
+//            comand[i * 2] = "-i";
+//            comand[i * 2 + 1] = videoUris.get(i).getVideoPaths();
+//        }
+//        for (int i = 0; i < videoUris.size(); i++) {
+//            paths = paths + "-i " + videoUris.get(i).getVideoPaths() + " ";
+//            maps = maps + "[" + i + ":v]" + " [" + i + ":a] ";
+//            Log.i(TAG, "MULTIPLE_PATHS " + paths);
+//
+//            Log.i(TAG, "MULTIPLE_MAPS" + maps);
+//        }
+//        maps = "\"" + maps;
+//        File dest = new File(moviesDir, filePrefix + fileExtension);
+//        int fileNo = 0;
+//        while (dest.exists()) {
+//            fileNo++;
+//            dest = new File(moviesDir, filePrefix + fileNo + fileExtension);
+//        }
+//        Log.i(TAG, "startTrim: src: " + yourRealPath);
+//        Log.i(TAG, "yourRealPath  : " + dest.getAbsolutePath());
+//        filePath = dest.getAbsolutePath();
+//        afterEditFilePath = dest;
+//        String size = String.valueOf(videoUris.size());
+//        String[] complexCommand = {"-filter_complex", maps + "concat=n=" + size + ":v=1:a=1 [vv] [aa]\"", "-map", "\"[vv]\"", "-map", "\"[aa]\"", filePath};
+//        String[] cmdf = new String[complexCommand.length + comand.length + 1];
+//        cmdf[0] = "-y";
+//        System.arraycopy(comand, 0, cmdf, 1, comand.length);
+//        System.arraycopy(complexCommand, 0, cmdf, comand.length + 1, complexCommand.length);
+//        String newCommand = comand(cmdf);
+//        Log.i(TAG, "NEW_EXPORT_COMMAND" + newCommand);
+//        runExecution(newCommand);
+//    }
     public void mergeAndExportVideos() {
         EDITOR_TYPE = "FINAL_VIDEO";
+
+        CommonUtils.dismissDialog();
         File moviesDir = new File(Environment.getExternalStorageDirectory().getPath() + "/" + "ARTalent");
         if (!moviesDir.isDirectory()) moviesDir.mkdirs();
         String currentDate = new SimpleDateFormat("dd-MM-yyyy-HH_mm_ss", Locale.getDefault()).format(new Date());
@@ -792,14 +840,15 @@ public class VideoEditorActivity extends AppCompatActivity implements MultipleVi
         filePath = dest.getAbsolutePath();
         afterEditFilePath = dest;
         String size = String.valueOf(videoUris.size());
-        String[] complexCommand = {"-filter_complex", maps + "concat=n=" + size + ":v=1:a=1 [vv] [aa]\"", "-map", "\"[vv]\"", "-map", "\"[aa]\"", filePath};
+        String[] complexCommand = { maps + "concat=n=" + size + ":v=1:a=1 [vv] [aa]\"", "-map", "\"[vv]\"", "-map", "\"[aa]\"", " -c copy ",filePath};
         String[] cmdf = new String[complexCommand.length + comand.length + 1];
+        String cmm = "-y "+ maps +" concat=n="+size+ ""
         cmdf[0] = "-y";
         System.arraycopy(comand, 0, cmdf, 1, comand.length);
         System.arraycopy(complexCommand, 0, cmdf, comand.length + 1, complexCommand.length);
         String newCommand = comand(cmdf);
         Log.i(TAG, "NEW_EXPORT_COMMAND" + newCommand);
-        executeComplexCommand(newCommand);
+        runExecution(newCommand);
     }
 
 
@@ -895,7 +944,7 @@ public class VideoEditorActivity extends AppCompatActivity implements MultipleVi
 
         try {
 
-            executeComplexCommand(complexCommand);
+            runExecution(complexCommand);
         } catch (Exception ignored) {
             Log.i(TAG, ignored.toString());
         }
@@ -906,6 +955,7 @@ public class VideoEditorActivity extends AppCompatActivity implements MultipleVi
      * Command for creating fast motion video
      */
     private void executeFastMotionVideoCommand() {
+        CommonUtils.showDialog(this);
         File moviesDir = new File(getApplicationInfo().dataDir);
 
 
@@ -925,13 +975,17 @@ public class VideoEditorActivity extends AppCompatActivity implements MultipleVi
         filePath = dest.getAbsolutePath();
         afterEditFilePath = dest;
         String complexCommand = "-y " + "-i " + yourRealPath + " -filter_complex" + " [0:v]setpts=0.5*PTS[v];[0:a]atempo=2.0[a] " + "-map " + "[v] " + "-map " + "[a] " + "-b:v " + "2097k " + "-r " + "60 " + "-vcodec " + "mpeg4 " + filePath;
-        executeComplexCommand(complexCommand);
+        runExecution(complexCommand);
     }
 
     /**
      * Command for creating slow motion video
      */
-    private void executeSlowMotionVideoCommand() {
+    public void commonUtils(){
+
+    }
+    private void executeSlowMotionVideoCommand(){
+
         File moviesDir = new File(getApplicationInfo().dataDir);
 
 
@@ -952,8 +1006,7 @@ public class VideoEditorActivity extends AppCompatActivity implements MultipleVi
         afterEditFilePath = dest;
         String complexCommand = "-y " + "-i " + yourRealPath + " -filter_complex " + "[0:v]setpts=2.0*PTS[v];[0:a]atempo=0.5[a] " + "-map " + "[v] " + "-map " + "[a] " + "-b:v " + "2097k " + "-r " + "60 " + "-vcodec " + "mpeg4 " + filePath;
 
-        executeComplexCommand(complexCommand);
-
+        runExecution(complexCommand);
     }
 
     /**
@@ -970,8 +1023,12 @@ public class VideoEditorActivity extends AppCompatActivity implements MultipleVi
 
     @SuppressLint("NotifyDataSetChanged")
     public void executeComplexCommand(String command) {
+
         FFmpegSession session = FFmpegKit.execute(command);
         if (ReturnCode.isSuccess(session.getReturnCode())) {
+
+            CommonUtils.dismissDialog();
+
             removeColors();
             if (EDITOR_TYPE.equalsIgnoreCase("SCALING_VIDEO")) {
                 MediaPlayer mediaPlayer = MediaPlayer.create(VideoEditorActivity.this, Uri.parse(filePath));
@@ -998,19 +1055,36 @@ public class VideoEditorActivity extends AppCompatActivity implements MultipleVi
                 selectedItemIndex = 0;
 //                runOnUiThread(this::clearCache);
             }
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        multipleViewsAdapter.notifyDataSetChanged();
+                        videoView.setVideoPath(filePath);
+                        imgFrame.setVisibility(View.GONE);
+                        videoView.setVisibility(View.VISIBLE);
+                        txtAudioTitle.setText(new File(filePath).getName());
+                        videoView.start();
+                        onVideoCompleteListener();
+                        Toast.makeText(VideoEditorActivity.this, "SUCCESS", Toast.LENGTH_SHORT).show();
+                    } catch (Exception e) {
+                        Log.i(TAG, "ERROR : " + e);
+                    }
 
-            try {
-                multipleViewsAdapter.notifyDataSetChanged();
-                videoView.setVideoPath(filePath);
-                imgFrame.setVisibility(View.GONE);
-                videoView.setVisibility(View.VISIBLE);
-                txtAudioTitle.setText(new File(filePath).getName());
-                videoView.start();
-                onVideoCompleteListener();
-                Toast.makeText(VideoEditorActivity.this, "SUCCESS", Toast.LENGTH_SHORT).show();
-            } catch (Exception e) {
-                Log.i(TAG, "ERROR : " + e);
-            }
+                }
+            });
+//            try {
+//                multipleViewsAdapter.notifyDataSetChanged();
+//                videoView.setVideoPath(filePath);
+//                imgFrame.setVisibility(View.GONE);
+//                videoView.setVisibility(View.VISIBLE);
+//                txtAudioTitle.setText(new File(filePath).getName());
+//                videoView.start();
+//                onVideoCompleteListener();
+//                Toast.makeText(VideoEditorActivity.this, "SUCCESS", Toast.LENGTH_SHORT).show();
+//            } catch (Exception e) {
+//                Log.i(TAG, "ERROR : " + e);
+//            }
 
         } else if (ReturnCode.isCancel(session.getReturnCode())) {
 
@@ -1104,7 +1178,7 @@ public class VideoEditorActivity extends AppCompatActivity implements MultipleVi
         String rotation = "rotate=" + mAnglePosition;
         String complexCommand = "-y" + " -i " + yourRealPath + " -c" + " copy" + " -metadata:s:v:0 " + rotation + " " + filePath;
 
-        executeComplexCommand(complexCommand);
+        runExecution(complexCommand);
 
     }
 
@@ -1139,7 +1213,7 @@ public class VideoEditorActivity extends AppCompatActivity implements MultipleVi
         String complexCommand = "-y -i " + yourRealPath + " -ss " + startHms + " -to " + endHms + " -c:v copy -c:a copy " + filePath;
         Log.i(TAG, "TIME_FORMAT_COMMAND : " + complexCommand);
 
-        executeComplexCommand(complexCommand);
+        runExecution(complexCommand);
 
 
     }
@@ -1198,7 +1272,7 @@ public class VideoEditorActivity extends AppCompatActivity implements MultipleVi
 //        ADD crop=1280:720:x:y
 //        x=start margin and y = top margin
         String complexCommand = "-y " + "-i " + yourRealPath + " -vf " + "scale=iw*2:-1,crop=1280:720 " + "-c:a " + "copy " + filePath;
-        executeComplexCommand(complexCommand);
+        runExecution(complexCommand);
 
 
     }
@@ -1282,7 +1356,7 @@ public class VideoEditorActivity extends AppCompatActivity implements MultipleVi
 //        String[] complexCommand = {"-y", "-i", yourRealPath, "-vf", "scale=w=1280:h=720:force_original_aspect_ratio=0,pad=1280:720:(ow-iw)/2:(oh-ih)/2", filePath};
 //        String[] complexCommand = {"-y", "-i", yourRealPath, "-vf", "scale=w=1280:h=720:force_original_aspect_ratio=0,pad=1280:720:(1280-854)/2:(720.9-480)/2", filePath};
 
-        executeComplexCommand(complexCommand);
+        runExecution(complexCommand);
 
 
     }
@@ -1374,7 +1448,7 @@ public class VideoEditorActivity extends AppCompatActivity implements MultipleVi
         filePath = dest.getAbsolutePath();
         afterEditFilePath = dest;
         String complexCommand = "-y -i " + yourRealPath + " -vf hue=s=0 " + filePath;
-        executeComplexCommand(complexCommand);
+        runExecution(complexCommand);
     }
 
     private void executeVintageVideoCommand() {
@@ -1399,7 +1473,7 @@ public class VideoEditorActivity extends AppCompatActivity implements MultipleVi
 
 //        String complexCommand = "-y -i " + yourRealPath + " -vf hue=s=0 " + filePath;
         String complexCommand = "-y -i " + yourRealPath + " -vf curves=vintage " + filePath;
-        executeComplexCommand(complexCommand);
+        runExecution(complexCommand);
     }
 
     private void executeGammaVideoCommand() {
@@ -1425,7 +1499,7 @@ public class VideoEditorActivity extends AppCompatActivity implements MultipleVi
 //        ffmpeg -i INPUT.MOV  OUTPUT.MOV
 //        ffmpeg -i in.mp4 -vf "eq=gamma=0.5" out.mp4
         String complexCommand = "-y -i " + yourRealPath + " -vf curves=preset=cross_process " + filePath;
-        executeComplexCommand(complexCommand);
+        runExecution(complexCommand);
     }
 
     private void executeCrossProcessVideoCommand() {
@@ -1448,7 +1522,7 @@ public class VideoEditorActivity extends AppCompatActivity implements MultipleVi
 //        ffmpeg -i INPUT.MOV  OUTPUT.MOV
 //        ffmpeg -i in.mp4 -vf "eq=gamma=0.5" out.mp4
         String complexCommand = "-y -i " + yourRealPath + " -vf curves=preset=cross_process " + filePath;
-        executeComplexCommand(complexCommand);
+        runExecution(complexCommand);
     }
 
     private void executeAudioCommand(String volumeLevel) {
@@ -1474,7 +1548,7 @@ public class VideoEditorActivity extends AppCompatActivity implements MultipleVi
 //        ffmpeg -i INPUT.MOV  OUTPUT.MOV
 //        ffmpeg -i input.mkv -filter:a "volume=4.0" output.mkv
         String complexCommand = "-y -i " + yourRealPath + " -filter:a \"volume=" + volumeLevel + "\" " + filePath;
-        executeComplexCommand(complexCommand);
+        runExecution(complexCommand);
     }
 
     private void removeColors() {
@@ -1485,5 +1559,40 @@ public class VideoEditorActivity extends AppCompatActivity implements MultipleVi
         icFilters.setColorFilter(ContextCompat.getColor(VideoEditorActivity.this, R.color.text_color));
 
     }
+
+
+
+    public void runExecution(String complexCommand){
+       Log.i(TAG ,"Merge Command " + complexCommand);
+
+        new Thread() {
+            @Override
+            public void run() {
+
+                //Do long operation stuff here search stuff
+
+                try {
+
+                    // code runs in a thread
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            CommonUtils.showDialog(VideoEditorActivity.this);
+
+                        }
+                    });
+                }
+                catch (final Exception ex) {
+
+                }
+                finally {
+                    executeComplexCommand(complexCommand);
+
+                }
+            }
+        }.start();
+
+    }
+
 
 }

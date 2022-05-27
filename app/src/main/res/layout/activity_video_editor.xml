@@ -971,7 +971,6 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/_55sdp"
             android:layout_below="@id/cardView"
-            android:visibility="gone"
             app:neumorph_lightSource="rightBottom"
             app:neumorph_shadowColorDark="#454343"
             app:neumorph_shadowColorLight="@color/black"

@@ -4,6 +4,17 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="../../../../../layout/custom_preview.xml" value="0.2512820512820513" />
+        <entry key="..\:/Flutter Projects/videoEditor/app/src/main/res/drawable/crop_audio_pressed.xml" value="0.184" />
+        <entry key="..\:/Flutter Projects/videoEditor/app/src/main/res/drawable/crop_audio_unpressed.xml" value="0.184" />
+        <entry key="..\:/Flutter Projects/videoEditor/app/src/main/res/drawable/crop_video_pressed.xml" value="0.184" />
+        <entry key="..\:/Flutter Projects/videoEditor/app/src/main/res/drawable/crop_video_selector.xml" value="0.184" />
+        <entry key="..\:/Flutter Projects/videoEditor/app/src/main/res/drawable/custom_thumb.xml" value="0.101" />
+        <entry key="..\:/Flutter Projects/videoEditor/app/src/main/res/drawable/seek_bar_active_view.xml" value="0.184" />
+        <entry key="..\:/Flutter Projects/videoEditor/app/src/main/res/drawable/seek_bar_inactive_view.xml" value="0.184" />
+        <entry key="..\:/Flutter Projects/videoEditor/app/src/main/res/layout/activity_edit_audio.xml" value="0.22" />
+        <entry key="..\:/Flutter Projects/videoEditor/app/src/main/res/layout/activity_error.xml" value="0.15534420289855072" />
+        <entry key="..\:/Flutter Projects/videoEditor/app/src/main/res/layout/activity_music.xml" value="0.15534420289855072" />
+        <entry key="..\:/Flutter Projects/videoEditor/app/src/main/res/layout/activity_video_editor.xml" value="0.15534420289855072" />
         <entry key="app/src/main/res/drawable/background_dialog.xml" value="0.1" />
         <entry key="app/src/main/res/drawable/bg_button.xml" value="0.1" />
         <entry key="app/src/main/res/drawable/bg_off_view.xml" value="0.1175" />
@@ -19,11 +30,9 @@
         <entry key="app/src/main/res/drawable/seek_bar_active_view.xml" value="0.1" />
         <entry key="app/src/main/res/drawable/seek_bar_end_view.xml" value="0.1" />
         <entry key="app/src/main/res/drawable/seek_bar_inactive_view.xml" value="0.1" />
-        <entry key="app/src/main/res/layout/activity_edit_audio.xml" value="0.22708333333333333" />
         <entry key="app/src/main/res/layout/activity_error.xml" value="0.1" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.22" />
         <entry key="app/src/main/res/layout/activity_music.xml" value="0.25" />
-        <entry key="app/src/main/res/layout/activity_video_editor.xml" value="0.22708333333333333" />
         <entry key="app/src/main/res/layout/layout_dialog_delete.xml" value="0.45286506469500926" />
         <entry key="app/src/main/res/layout/layout_progress_dialog.xml" value="0.22708333333333333" />
         <entry key="app/src/main/res/layout/layout_rv_music_item.xml" value="0.33" />

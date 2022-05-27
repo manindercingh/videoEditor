@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.DownloadListener;
 import android.widget.ImageView;
@@ -30,6 +31,7 @@ import com.mohammedalaa.seekbar.DoubleValueSeekBarView;
 import com.mohammedalaa.seekbar.OnDoubleValueSeekBarChangeListener;
 
 import java.io.File;
+import java.util.concurrent.TimeUnit;
 
 import soup.neumorphism.NeumorphCardView;
 
@@ -37,7 +39,7 @@ public class EditAudioActivity extends AppCompatActivity {
     boolean doubleBackToExitPressedOnce = false;
     long pauseMusicDuration;
     private ImageView imgBack, imgPlay, imgPause;
-    private TextView txtAudioTitle;
+    private TextView txtAudioTitle, txtStart, txtEnd;
     private DoubleValueSeekBarView double_range_seekbar;
     private NeumorphCardView crdDone;
     private MediaPlayer mediaPlayer;
@@ -106,8 +108,9 @@ public class EditAudioActivity extends AppCompatActivity {
         Log.i(TAG, "videoLength: " + videoLength + " audioLength: " + musicDuration);
         downloadAudio(EditAudioActivity.this, musicURL, musicName);
         AwsConstants.MUSIC_NAME = musicName;
-
-
+        @SuppressLint("DefaultLocale") String endHms = String.format("%02d:%02d", TimeUnit.MILLISECONDS.toMinutes(videoLength * 1000L) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(videoLength * 1000L)),
+                TimeUnit.MILLISECONDS.toSeconds(videoLength * 1000L) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(videoLength * 1000L)));
+        txtEnd.setText("End at: " + endHms);
     }
 
     @Override
@@ -158,17 +161,17 @@ public class EditAudioActivity extends AppCompatActivity {
 
         double_range_seekbar.setMaxValue(audioLength);
         double_range_seekbar.setCurrentMaxValue(videoLength);
-
         double_range_seekbar.setOnRangeSeekBarViewChangeListener(new OnDoubleValueSeekBarChangeListener() {
             @SuppressLint("ClickableViewAccessibility")
             @Override
             public void onValueChanged(@Nullable DoubleValueSeekBarView doubleValueSeekBarView, int i, int i1, boolean b) {
 
-                if (i < 0) {
+
+                if (i < 0 || i1 < videoLength) {
                     doubleValueSeekBarView.setCurrentMinValue(0);
                     doubleValueSeekBarView.setCurrentMaxValue(videoLength);
 
-                } else if (i1 > audioLength) {
+                } else if (i1 > audioLength || i > audioLength - videoLength) {
 
                     doubleValueSeekBarView.setCurrentMinValue(audioLength - videoLength);
                     doubleValueSeekBarView.setCurrentMaxValue(audioLength);
@@ -178,7 +181,31 @@ public class EditAudioActivity extends AppCompatActivity {
                     doubleValueSeekBarView.setCurrentMinValue(i1 - videoLength);
                 }
 
-                pauseMusicDuration = i * 1000L;
+                int start;
+                if (i > audioLength - videoLength) {
+                    start = (audioLength - videoLength) * 1000;
+                } else {
+                    start = i * 1000;
+                }
+                int end;
+                if (i1 < videoLength) {
+                    end = videoLength * 1000;
+                } else {
+                    end = i1 * 1000;
+                }
+
+
+                @SuppressLint("DefaultLocale") String startHms = String.format("%02d:%02d",
+                        TimeUnit.MILLISECONDS.toMinutes(start) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(start)),
+                        TimeUnit.MILLISECONDS.toSeconds(start) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(start)));
+                @SuppressLint("DefaultLocale") String endHms = String.format("%02d:%02d",
+                        TimeUnit.MILLISECONDS.toMinutes(end) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(end)),
+                        TimeUnit.MILLISECONDS.toSeconds(end) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(end)));
+                Log.i(TAG, "TIME_FORMAT_START : " + startHms);
+                Log.i(TAG, "TIME_FORMAT_END : " + endHms);
+                txtStart.setText("Starts at: " + startHms);
+                txtEnd.setText("End at: " + endHms);
+                pauseMusicDuration = videoLength * 1000L;
                 Log.i(TAG, "PAUSE_MUSIC_DURATION : " + pauseMusicDuration);
 
 
@@ -239,6 +266,8 @@ public class EditAudioActivity extends AppCompatActivity {
         mediaPlayer = new MediaPlayer();
         double_range_seekbar = findViewById(R.id.double_range_seekbar);
         txtAudioTitle = findViewById(R.id.txtAudioTitle);
+        txtStart = findViewById(R.id.txtStart);
+        txtEnd = findViewById(R.id.txtEnd);
         imgBack = findViewById(R.id.imgBack);
         imgPlay = findViewById(R.id.imgPlay);
         imgPause = findViewById(R.id.imgPause);
@@ -269,4 +298,6 @@ public class EditAudioActivity extends AppCompatActivity {
 //            }
 //        };
     }
+
+
 }

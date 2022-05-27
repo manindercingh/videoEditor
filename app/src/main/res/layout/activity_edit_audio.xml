@@ -2,6 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rlAudioEditor"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background_color"
@@ -97,40 +98,87 @@
 
     </androidx.appcompat.widget.LinearLayoutCompat>
 
+    <LinearLayout
+        android:id="@+id/txtdurations"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/llTitle"
+        android:layout_marginTop="5dp"
+        android:orientation="horizontal"
+        android:weightSum="2">
+
+        <TextView
+            android:id="@+id/txtStart"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Starte at: 00:00"
+            android:textColor="@color/text_color" />
+
+        <TextView
+            android:id="@+id/txtEnd"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="End at: 00:00"
+            android:textColor="@color/text_color" />
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/rlSeekbar"
+        android:layout_width="wrap_content"
+        android:layout_marginTop="-10dp"
+        android:layout_height="80dp"
+        android:layout_below="@id/txtdurations">
+
+        <ImageView
+            android:id="@+id/seek_back"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginHorizontal="15dp"
+            android:src="@drawable/img_seekbar_bg"
+            tools:ignore="ContentDescription" />
+
         <com.mohammedalaa.seekbar.DoubleValueSeekBarView
             android:id="@+id/double_range_seekbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/llTitle"
             android:layout_marginHorizontal="15dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:r2barHeight="16dp"
-            app:r2baseColor="@color/navy"
+            android:layout_marginTop="25dp"
+            app:r2barHeight="8dp"
+            app:r2baseColor="@android:color/transparent"
             app:r2circleFillColor="@color/black"
-            app:r2circleRadius="@dimen/_12sdp"
+            app:r2circleRadius="@dimen/_10sdp"
             app:r2circleTextColor="@color/black"
             app:r2circleTextSize="0sp"
             app:r2fillColor="@color/app_color"
             app:r2maxValueStep="1"
             app:r2minValue="0"
             app:r2minValueStep="1" />
+    </RelativeLayout>
 
     <ImageView
         android:id="@+id/imgPlay"
         android:layout_width="@dimen/_70sdp"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/double_range_seekbar"
+        android:layout_height="@dimen/_70sdp"
+        android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:layout_marginBottom="@dimen/_20sdp"
         android:src="@drawable/img_play"
         tools:ignore="ContentDescription" />
 
     <ImageView
         android:id="@+id/imgPause"
         android:layout_width="@dimen/_70sdp"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/double_range_seekbar"
+        android:layout_height="@dimen/_70sdp"
+        android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:layout_marginBottom="@dimen/_20sdp"
         android:src="@drawable/img_pause"
         android:visibility="gone"
         tools:ignore="ContentDescription" />

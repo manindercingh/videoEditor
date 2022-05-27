@@ -9,6 +9,7 @@ import android.util.Log;
 
 import com.artalent.activities.VideoEditorActivity;
 import com.artalent.models.VideoUri;
+import com.artalent.utility.CommonUtils;
 import com.arthenica.ffmpegkit.FFmpegKit;
 import com.arthenica.ffmpegkit.FFmpegSession;
 import com.arthenica.ffmpegkit.ReturnCode;
@@ -89,13 +90,15 @@ public class ThreadsInActivity implements Runnable {
         afterEditFilePath = dest;
         String complexCommand = "-y " + "-i " + paths + " -vf " + "scale=w=1280:h=720:force_original_aspect_ratio=1,pad=1280:720:(ow-iw)/2:(oh-ih)/2 " + filepath;
 //        String complexCommand = "-y " + "-i " + paths + " -vf " + "scale=w=1280:h=720:force_original_aspect_ratio=1,pad=1280:720:(ow-iw)/2:(oh-ih)/2 -b:v 1M -crf 24 " + filepath;
-        executeComplexCommand(complexCommand);
+       runExecution(complexCommand);
     }
 
     public void executeComplexCommand(String command) {
 
         FFmpegSession session = FFmpegKit.execute(command);
         if (ReturnCode.isSuccess(session.getReturnCode())) {
+            CommonUtils.dismissDialog();
+
             VideoEditorActivity.yourRealPath = afterEditFilePath.getAbsolutePath();
             selectedVideoUri = Uri.fromFile(new File(filepath));
             VideoUri videoUri2 = new VideoUri(filepath, mainActivity);
@@ -152,5 +155,35 @@ public class ThreadsInActivity implements Runnable {
         return values.toString();
     }
 
+    public void runExecution(String complexCommand){
+
+        new Thread() {
+            @Override
+            public void run() {
+
+                //Do long operation stuff here search stuff
+
+                try {
+
+                    // code runs in a thread
+                    mainActivity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            CommonUtils.showDialog(mainActivity);
+
+                        }
+                    });
+                }
+                catch (final Exception ex) {
+
+                }
+                finally {
+                    executeComplexCommand(complexCommand);
+
+                }
+            }
+        }.start();
+
+    }
 
 }

@@ -4,19 +4,17 @@ import static com.artalent.activities.VideoEditorActivity.TAG;
 
 import android.annotation.SuppressLint;
 import android.app.DownloadManager;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.View;
-import android.webkit.DownloadListener;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,10 +24,17 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.artalent.R;
 import com.artalent.utility.AwsConstants;
+import com.artalent.utility.CommonUtils;
+import com.artalent.utility.ErrorActivity;
+import com.arthenica.ffmpegkit.FFmpegKit;
+import com.arthenica.ffmpegkit.FFmpegSession;
+import com.arthenica.ffmpegkit.ReturnCode;
 import com.mohammedalaa.seekbar.DoubleValueSeekBarView;
 import com.mohammedalaa.seekbar.OnDoubleValueSeekBarChangeListener;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import soup.neumorphism.NeumorphCardView;
 
@@ -39,16 +44,17 @@ public class EditAudioActivity extends AppCompatActivity {
     private ImageView imgBack, imgPlay, imgPause;
     private TextView txtAudioTitle;
     private DoubleValueSeekBarView double_range_seekbar;
+    private String fileName, inputPath;
+    private boolean isDownloading;
+    private int startingMS, endingMS;
     private NeumorphCardView crdDone;
     private MediaPlayer mediaPlayer;
     private int videoLength, audioLength;
     private float musicDuration;
 
+    @SuppressLint("ObsoleteSdkInt")
     private void downloadAudio(Context context, String url, String outputName) {
-        Toast.makeText(context, "Downloading...", Toast.LENGTH_SHORT).show();
-        File direct = new File(context.getApplicationInfo().dataDir);
         Log.i("ar_talent", "audioPath : " + outputName);
-        if (!direct.isDirectory()) direct.mkdirs();
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
         request.setDescription("Download Audio");
         request.setTitle(outputName);
@@ -56,15 +62,30 @@ public class EditAudioActivity extends AppCompatActivity {
             request.allowScanningByMediaScanner();
             request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE);
         }
-        request.setDestinationInExternalPublicDir(context.getApplicationInfo().dataDir, outputName);
+        File cacheDir = new File("ARTalent");
 
-        DownloadManager manager = (DownloadManager) context.getSystemService(context.DOWNLOAD_SERVICE);
+        if (!cacheDir.isDirectory()) {
+            try {
+                cacheDir.mkdir();
+                Log.i(TAG, "CACHE DIRECTORY CREATED");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            Log.i(TAG, "CACHE DIRECTORY Exists");
+        }
+        request.setDestinationInExternalPublicDir(cacheDir.getPath(), outputName);
+        Log.i(TAG, "download internal path : " + cacheDir.getPath());
+
+
+        DownloadManager manager = (DownloadManager) context.getSystemService(DOWNLOAD_SERVICE);
         long abc = manager.enqueue(request);
 
         if (abc != 0) {
             Toast.makeText(context, "download started", Toast.LENGTH_SHORT).show();
-            audioDownloadedListener();
+            isDownloading = true;
         } else {
+            isDownloading = false;
             Toast.makeText(context, "no download started", Toast.LENGTH_SHORT).show();
         }
 
@@ -104,8 +125,11 @@ public class EditAudioActivity extends AppCompatActivity {
         Log.i("ar_talent", "MusicName : " + musicName);
         Log.i("ar_talent", "Music Url : " + musicURL);
         Log.i(TAG, "videoLength: " + videoLength + " audioLength: " + musicDuration);
-        downloadAudio(EditAudioActivity.this, musicURL, musicName);
-        AwsConstants.MUSIC_NAME = musicName;
+
+        String name = musicName;
+        name = name.replace(" ", "_");
+        downloadAudio(EditAudioActivity.this, musicURL, name);
+        fileName = musicName;
 
 
     }
@@ -137,7 +161,26 @@ public class EditAudioActivity extends AppCompatActivity {
             finish();
         });
 
-        crdDone.setOnClickListener(v -> Toast.makeText(this, "DONE", Toast.LENGTH_SHORT).show());
+        crdDone.setOnClickListener(v -> {
+
+            String name = fileName;
+            name = name.replace(" ", "_");
+            Log.e(TAG, "MUSIC_NAME: " + name);
+            if (isDownloading) {
+                File cacheDir = new File(Environment.getExternalStorageDirectory() + "/" + "ARTalent", name);
+
+                if (cacheDir.exists()) {
+                    inputPath = cacheDir.getPath();
+                    Log.i(TAG, "inputPath:" + inputPath);
+                    executeTrimAudioCommand(startingMS, endingMS);
+
+                } else {
+                    Toast.makeText(this, "not", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(this, "ERROR DOWNLOADING AUDIO", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         imgPlay.setOnClickListener(v -> {
             if (imgPlay.getVisibility() == View.VISIBLE) {
@@ -183,6 +226,8 @@ public class EditAudioActivity extends AppCompatActivity {
 
 
                 mediaPlayer.seekTo(i * 1000);
+                startingMS = i * 1000;
+                endingMS = i1 * 1000;
                 mediaPlayer.start();
                 playMusic();
 
@@ -190,11 +235,7 @@ public class EditAudioActivity extends AppCompatActivity {
                     mediaPlayer.pause();
                     imgPlay.setVisibility(View.VISIBLE);
                     imgPause.setVisibility(View.GONE);
-                }, pauseMusicDuration);
-
-//                Toast.makeText(EditAudioActivity.this, "start : " + start + " end : " + end + " total : " + musicDuration, Toast.LENGTH_SHORT).show();
-
-//                if (endedTrim - startedTrim)
+                }, videoLength * 1000L);
 
             }
 
@@ -205,21 +246,11 @@ public class EditAudioActivity extends AppCompatActivity {
 
             @Override
             public void onStopTrackingTouch(@Nullable DoubleValueSeekBarView doubleValueSeekBarView, int i, int i1) {
-                float start = i;
-                float end = i1;
-//                Toast.makeText(EditAudioActivity.this, "start : " + start + " end : " + end + " total : " + musicDuration, Toast.LENGTH_SHORT).show();
-                float startedTrim;
-                float endedTrim;
 
-
-//                startedTrim = musicDuration * start / 100;
-//                endedTrim = musicDuration * end / 100;
-//
-//                Toast.makeText(EditAudioActivity.this, "start : " + startedTrim + " end : " + endedTrim + " total : " + musicDuration, Toast.LENGTH_SHORT).show();
 
             }
         });
-//        double_range_seekbar.setOnClickListener(v -> double_range_seekbar.setEnabled(true));
+
     }
 
     private void playMusic() {
@@ -245,28 +276,70 @@ public class EditAudioActivity extends AppCompatActivity {
         crdDone = findViewById(R.id.crdDone);
     }
 
-    private void audioDownloadedListener() {
-//        new BroadcastReceiver() {
-//            @Override
-//            public void onReceive(Context context, Intent intent) {
-//                String action = intent.getAction();
-//                DownloadManager downloadManager = new DownloadManager.Request(intent.getData());
-//                if (DownloadManager.ACTION_DOWNLOAD_COMPLETE.equals(action)) {
-//                    long downloadId = intent.getLongExtra(
-//                            DownloadManager.EXTRA_DOWNLOAD_ID, 0);
-//                    DownloadManager.Query query = new DownloadManager.Query();
-//                    query.setFilterById(enqueue);
-//                    Cursor c = dm.query(query);
-//                    if (c.moveToFirst()) {
-//                        int columnIndex = c
-//                                .getColumnIndex(DownloadManager.COLUMN_STATUS);
-//                        if (DownloadManager.STATUS_SUCCESSFUL == c
-//                                .getInt(columnIndex)) {
-//                            Toast.makeText(context, "AUDIO DOWNLOADED", Toast.LENGTH_SHORT).show();
-//                        }
-//                    }
-//                }
-//            }
-//        };
+    private void executeTrimAudioCommand(int startMs, int endMs) {
+
+        File moviesDir = new File(getApplicationInfo().dataDir);
+        String filePrefix = "trimming_audio";
+        String fileExtension = ".mp3";
+        File dest = new File(moviesDir, filePrefix + fileExtension);
+        int fileNo = 0;
+        while (dest.exists()) {
+            fileNo++;
+            dest = new File(moviesDir, filePrefix + fileNo + fileExtension);
+            AwsConstants.FINAL_MUSIC_NAME_CACHE = filePrefix + fileNo + fileExtension;
+        }
+
+        AwsConstants.FINAL_FILE_CACHE = dest;
+        String outputFile = dest.getAbsolutePath();
+        Log.i(TAG, "yourRealPath  : " + dest.getAbsolutePath());
+        Log.i(TAG, "START_MS : " + startMs);
+        Log.i(TAG, "END_MS : " + endMs);
+        @SuppressLint("DefaultLocale") String startHms = String.format("%02d:%02d:%02d", TimeUnit.MILLISECONDS.toHours(startMs),
+                TimeUnit.MILLISECONDS.toMinutes(startMs) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(startMs)),
+                TimeUnit.MILLISECONDS.toSeconds(startMs) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(startMs)));
+        @SuppressLint("DefaultLocale") String endHms = String.format("%02d:%02d:%02d", TimeUnit.MILLISECONDS.toHours(endMs),
+                TimeUnit.MILLISECONDS.toMinutes(endMs) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(endMs)),
+                TimeUnit.MILLISECONDS.toSeconds(endMs) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(endMs)));
+        Log.i(TAG, "TIME_FORMAT_START : " + startHms);
+        Log.i(TAG, "TIME_FORMAT_END : " + endHms);
+        String complexCommand = "-y -i " + inputPath + " -ss " + startHms + " -to " + endHms + " -c copy " + outputFile;
+        Log.i(TAG, "TIME_FORMAT_COMMAND : " + complexCommand);
+        executeComplexCommand(complexCommand);
+
+    }
+
+    public void executeComplexCommand(String command) {
+        FFmpegSession session = FFmpegKit.execute(command);
+        if (ReturnCode.isSuccess(session.getReturnCode())) {
+
+            Log.i(TAG, "FILE: " + AwsConstants.FINAL_FILE_CACHE.getPath() + " MUSIC_NAME: " + AwsConstants.FINAL_MUSIC_NAME_CACHE);
+            Log.i(TAG, "SUCCESS with output : " + session.getAllLogsAsString());
+
+            File musicDIR = new File(AwsConstants.FINAL_FILE_CACHE.getParent(), AwsConstants.FINAL_MUSIC_NAME_CACHE);
+
+            if (musicDIR.exists()) {
+                Toast.makeText(this, "MUSIC EXISTS", Toast.LENGTH_SHORT).show();
+
+            } else {
+                Toast.makeText(this, "Error Trimming Music", Toast.LENGTH_SHORT).show();
+            }
+
+        } else if (ReturnCode.isCancel(session.getReturnCode())) {
+
+            CommonUtils.dismissDialog();
+            Log.i(TAG, "CANCELLED" + " " + session.getAllLogsAsString());
+            Intent intent = new Intent(EditAudioActivity.this, ErrorActivity.class);
+            intent.putExtra("TAG", session.getAllLogsAsString());
+            startActivity(intent);
+        } else {
+            CommonUtils.dismissDialog();
+            Intent intent = new Intent(EditAudioActivity.this, ErrorActivity.class);
+            intent.putExtra("TAG", session.getAllLogsAsString());
+            startActivity(intent);
+            Log.i(TAG, "Failed" + " " + session.getAllLogsAsString());
+            Log.i(TAG, String.format("Command failed with state %s and rc %s.%s", session.getState(), session.getReturnCode(), session.getFailStackTrace()));
+
+        }
+
     }
 }

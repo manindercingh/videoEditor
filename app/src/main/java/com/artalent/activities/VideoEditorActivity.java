@@ -54,6 +54,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import soup.neumorphism.NeumorphCardView;
@@ -106,6 +107,7 @@ public class VideoEditorActivity extends AppCompatActivity implements MultipleVi
         findIds();
         setClicks();
         setAdapters();
+        clearCache();
 //        getMusicFromUri();
     }
 
@@ -1310,31 +1312,32 @@ public class VideoEditorActivity extends AppCompatActivity implements MultipleVi
 
     }
 
-//    void clearCache() {
-//
+    void clearCache() {
+
 //        File cacheDir = new File(Environment.getExternalStorageDirectory().getPath() + "/" + "ARTalent" + "/" + ".cache");
-//
-//        if (!cacheDir.isDirectory()) {
-//            try {
-//                cacheDir.mkdir();
-//                Log.i(TAG, "CACHE DIRECTORY CREATED");
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        } else {
-//            try {
-//                String[] children = cacheDir.list();
-//                for (int i = 0; Objects.requireNonNull(children).length > i; i++) {
-//                    new File(cacheDir, children[i]).delete();
-//                }
-//                Log.i(TAG, "CACHE CLEARED");
-//
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
-//
-//    }
+        File cacheDir = new File(Environment.getExternalStorageDirectory().getPath() + "/" + "ARTalent");
+
+        if (!cacheDir.isDirectory()) {
+            try {
+                cacheDir.mkdir();
+                Log.i(TAG, "CACHE DIRECTORY CREATED");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            try {
+                String[] children = cacheDir.list();
+                for (int i = 0; Objects.requireNonNull(children).length > i; i++) {
+                    new File(cacheDir, children[i]).delete();
+                }
+                Log.i(TAG, "CACHE CLEARED");
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
 
     public void merging() {
         isAllTrue.clear();

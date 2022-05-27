@@ -57,6 +57,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import soup.neumorphism.NeumorphCardView;
@@ -109,6 +110,7 @@ public class VideoEditorActivity extends AppCompatActivity implements MultipleVi
         findIds();
         setClicks();
         setAdapters();
+        clearCache();
 //        getMusicFromUri();
     }
 
@@ -842,7 +844,7 @@ public class VideoEditorActivity extends AppCompatActivity implements MultipleVi
         String size = String.valueOf(videoUris.size());
         String[] complexCommand = { maps + "concat=n=" + size + ":v=1:a=1 [vv] [aa]\"", "-map", "\"[vv]\"", "-map", "\"[aa]\"", " -c copy ",filePath};
         String[] cmdf = new String[complexCommand.length + comand.length + 1];
-        String cmm = "-y "+ maps +" concat=n="+size+ ""
+        String cmm = "-y "+ maps +" concat=n="+size+ "";
         cmdf[0] = "-y";
         System.arraycopy(comand, 0, cmdf, 1, comand.length);
         System.arraycopy(complexCommand, 0, cmdf, comand.length + 1, complexCommand.length);
@@ -1384,31 +1386,32 @@ public class VideoEditorActivity extends AppCompatActivity implements MultipleVi
 
     }
 
-//    void clearCache() {
-//
+    void clearCache() {
+
 //        File cacheDir = new File(Environment.getExternalStorageDirectory().getPath() + "/" + "ARTalent" + "/" + ".cache");
-//
-//        if (!cacheDir.isDirectory()) {
-//            try {
-//                cacheDir.mkdir();
-//                Log.i(TAG, "CACHE DIRECTORY CREATED");
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        } else {
-//            try {
-//                String[] children = cacheDir.list();
-//                for (int i = 0; Objects.requireNonNull(children).length > i; i++) {
-//                    new File(cacheDir, children[i]).delete();
-//                }
-//                Log.i(TAG, "CACHE CLEARED");
-//
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
-//
-//    }
+        File cacheDir = new File(Environment.getExternalStorageDirectory().getPath() + "/" + "ARTalent");
+
+        if (!cacheDir.isDirectory()) {
+            try {
+                cacheDir.mkdir();
+                Log.i(TAG, "CACHE DIRECTORY CREATED");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            try {
+                String[] children = cacheDir.list();
+                for (int i = 0; Objects.requireNonNull(children).length > i; i++) {
+                    new File(cacheDir, children[i]).delete();
+                }
+                Log.i(TAG, "CACHE CLEARED");
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
 
     public void merging() {
         isAllTrue.clear();

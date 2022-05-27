@@ -107,7 +107,7 @@ public class EditAudioActivity extends AppCompatActivity {
         Log.i("ar_talent", "Music Url : " + musicURL);
         Log.i(TAG, "videoLength: " + videoLength + " audioLength: " + musicDuration);
         downloadAudio(EditAudioActivity.this, musicURL, musicName);
-        AwsConstants.MUSIC_NAME = musicName;
+//        AwsConstants.MUSIC_NAME = musicName;
         @SuppressLint("DefaultLocale") String endHms = String.format("%02d:%02d", TimeUnit.MILLISECONDS.toMinutes(videoLength * 1000L) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(videoLength * 1000L)),
                 TimeUnit.MILLISECONDS.toSeconds(videoLength * 1000L) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(videoLength * 1000L)));
         txtEnd.setText("End at: " + endHms);
